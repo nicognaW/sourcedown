@@ -30,4 +30,15 @@ describe("code highlighting", () => {
 
     expect(contentText(container)).toContain('{"answer": 42}');
   });
+
+  it("highlights css fenced code", async () => {
+    const markdown = "```css\n.card { display: grid; }\n```";
+    const { container } = render(<Sourcedown markdown={markdown} />);
+
+    await waitFor(() => {
+      expect(container.querySelector(".sd-code-string")).not.toBeNull();
+    });
+
+    expect(contentText(container)).toContain(".card { display: grid; }");
+  });
 });
