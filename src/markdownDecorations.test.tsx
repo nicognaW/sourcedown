@@ -21,4 +21,19 @@ describe("markdown semantic decorations", () => {
     expect(decText(container, "sd-strong")).toContain("bold");
     expect(decText(container, "sd-strong")).toContain("**");
   });
+
+  it("marks ATX headings with sd-h1 through sd-h6", async () => {
+    const { container } = render(
+      <Sourcedown markdown={"# H1\n\n## H2\n\n### H3"} />
+    );
+
+    await waitFor(() => {
+      expect(dec(container, "sd-h1")).not.toBeNull();
+    });
+
+    expect(decText(container, "sd-h1")).toContain("H1");
+    expect(decText(container, "sd-h1")).toContain("#");
+    expect(dec(container, "sd-h2")).not.toBeNull();
+    expect(dec(container, "sd-h3")).not.toBeNull();
+  });
 });
