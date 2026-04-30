@@ -8,21 +8,24 @@ import {
   type ViewUpdate,
 } from "@codemirror/view";
 
-const decs = {
-  strong: Decoration.mark({ class: "sd-strong" }),
-  em: Decoration.mark({ class: "sd-em" }),
-  h1: Decoration.mark({ class: "sd-h1" }),
-  h2: Decoration.mark({ class: "sd-h2" }),
-  h3: Decoration.mark({ class: "sd-h3" }),
-  h4: Decoration.mark({ class: "sd-h4" }),
-  h5: Decoration.mark({ class: "sd-h5" }),
-  h6: Decoration.mark({ class: "sd-h6" }),
-  inlineCode: Decoration.mark({ class: "sd-inline-code" }),
-  codeBlock: Decoration.mark({ class: "sd-code-block" }),
-  link: Decoration.mark({ class: "sd-link" }),
-  blockquote: Decoration.mark({ class: "sd-blockquote" }),
-  listItem: Decoration.mark({ class: "sd-list-item" }),
-  hr: Decoration.mark({ class: "sd-hr" }),
+const decs: Record<string, Decoration> = {
+  ATXHeading1: Decoration.mark({ class: "sd-h1" }),
+  ATXHeading2: Decoration.mark({ class: "sd-h2" }),
+  ATXHeading3: Decoration.mark({ class: "sd-h3" }),
+  ATXHeading4: Decoration.mark({ class: "sd-h4" }),
+  ATXHeading5: Decoration.mark({ class: "sd-h5" }),
+  ATXHeading6: Decoration.mark({ class: "sd-h6" }),
+  SetextHeading1: Decoration.mark({ class: "sd-h1" }),
+  SetextHeading2: Decoration.mark({ class: "sd-h2" }),
+  StrongEmphasis: Decoration.mark({ class: "sd-strong" }),
+  Emphasis: Decoration.mark({ class: "sd-em" }),
+  InlineCode: Decoration.mark({ class: "sd-inline-code" }),
+  FencedCode: Decoration.mark({ class: "sd-code-block" }),
+  CodeBlock: Decoration.mark({ class: "sd-code-block" }),
+  Link: Decoration.mark({ class: "sd-link" }),
+  Blockquote: Decoration.mark({ class: "sd-blockquote" }),
+  ListItem: Decoration.mark({ class: "sd-list-item" }),
+  HorizontalRule: Decoration.mark({ class: "sd-hr" }),
 };
 
 function buildDecorations(view: EditorView): DecorationSet {
@@ -32,55 +35,13 @@ function buildDecorations(view: EditorView): DecorationSet {
   syntaxTree(view.state)
     .cursor()
     .iterate((node) => {
-      switch (node.name) {
-        case "ATXHeading1":
-        case "SetextHeading1":
-          marks.push({ from: node.from, to: node.to, dec: decs.h1 });
-          break;
-        case "ATXHeading2":
-        case "SetextHeading2":
-          marks.push({ from: node.from, to: node.to, dec: decs.h2 });
-          break;
-        case "ATXHeading3":
-          marks.push({ from: node.from, to: node.to, dec: decs.h3 });
-          break;
-        case "ATXHeading4":
-          marks.push({ from: node.from, to: node.to, dec: decs.h4 });
-          break;
-        case "ATXHeading5":
-          marks.push({ from: node.from, to: node.to, dec: decs.h5 });
-          break;
-        case "ATXHeading6":
-          marks.push({ from: node.from, to: node.to, dec: decs.h6 });
-          break;
-        case "StrongEmphasis":
-          marks.push({ from: node.from, to: node.to, dec: decs.strong });
-          break;
-        case "Emphasis":
-          marks.push({ from: node.from, to: node.to, dec: decs.em });
-          break;
-        case "InlineCode":
-          marks.push({ from: node.from, to: node.to, dec: decs.inlineCode });
-          break;
-        case "FencedCode":
-        case "CodeBlock":
-          marks.push({ from: node.from, to: node.to, dec: decs.codeBlock });
-          break;
-        case "Link":
-          marks.push({ from: node.from, to: node.to, dec: decs.link });
-          break;
-        case "Blockquote":
-          marks.push({ from: node.from, to: node.to, dec: decs.blockquote });
-          break;
-        case "ListItem":
-          marks.push({ from: node.from, to: node.to, dec: decs.listItem });
-          break;
-        case "HorizontalRule":
-          marks.push({ from: node.from, to: node.to, dec: decs.hr });
-          break;
+      const dec = decs[node.name];
+      if (dec) {
+        marks.push({ from: node.from, to: node.to, dec });
       }
     });
 
+  // RangeSetBuilder requires ascending from, then descending to (outer before inner)
   marks.sort((a, b) =>
     a.from !== b.from ? a.from - b.from : b.to - a.to
   );
