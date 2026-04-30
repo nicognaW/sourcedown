@@ -4,6 +4,10 @@ import { markdown as markdownLanguage } from "@codemirror/lang-markdown";
 import { EditorState, type Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { useEffect, useRef } from "react";
+import {
+  markdownDecorationsExtension,
+  markdownDecorationsTheme,
+} from "./markdownDecorations";
 import { sourcedownBaseTheme } from "./theme";
 
 export interface SourcedownProps {
@@ -20,6 +24,8 @@ function createExtensions(): Extension[] {
     EditorView.lineWrapping,
     markdownLanguage(),
     sourcedownBaseTheme,
+    markdownDecorationsExtension,
+    markdownDecorationsTheme,
     EditorView.contentAttributes.of({
       "aria-label": "markdown source",
       role: "textbox",
