@@ -3,6 +3,7 @@ import {
   type Language,
   syntaxHighlighting,
 } from "@codemirror/language";
+import { css } from "@codemirror/lang-css";
 import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
 import { tags } from "@lezer/highlight";
@@ -33,6 +34,10 @@ export function codeLanguageFor(info: string): Language | null {
 
   if (language === "json") {
     return json().language;
+  }
+
+  if (language === "css") {
+    return css().language;
   }
 
   return null;
