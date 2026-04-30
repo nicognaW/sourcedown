@@ -4,6 +4,11 @@ import { markdown as markdownLanguage } from "@codemirror/lang-markdown";
 import { EditorState, type Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { useEffect, useRef } from "react";
+import {
+  codeHighlightExtension,
+  codeHighlightTheme,
+  codeLanguageFor,
+} from "./codeHighlight";
 import { linkClickExtension } from "./linkClick";
 import {
   markdownDecorationsExtension,
@@ -25,7 +30,9 @@ function createExtensions(
     EditorState.readOnly.of(true),
     EditorView.editable.of(false),
     EditorView.lineWrapping,
-    markdownLanguage(),
+    markdownLanguage({ codeLanguages: codeLanguageFor }),
+    codeHighlightExtension,
+    codeHighlightTheme,
     sourcedownBaseTheme,
     markdownDecorationsExtension,
     markdownDecorationsTheme,
