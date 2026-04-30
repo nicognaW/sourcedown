@@ -41,4 +41,17 @@ describe("code highlighting", () => {
 
     expect(contentText(container)).toContain(".card { display: grid; }");
   });
+
+  it("highlights html fenced code", async () => {
+    const markdown = "```html\n<section class=\"hero\">hi</section>\n```";
+    const { container } = render(<Sourcedown markdown={markdown} />);
+
+    await waitFor(() => {
+      expect(container.querySelector(".sd-code-tag")).not.toBeNull();
+    });
+
+    expect(contentText(container)).toContain(
+      '<section class="hero">hi</section>'
+    );
+  });
 });
