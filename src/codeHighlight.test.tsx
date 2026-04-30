@@ -6,6 +6,23 @@ function contentText(container: HTMLElement): string {
   return container.querySelector(".cm-content")?.textContent ?? "";
 }
 
+function highlightedCode(container: HTMLElement): Element | null {
+  return container.querySelector(
+    [
+      ".sd-code-keyword",
+      ".sd-code-string",
+      ".sd-code-number",
+      ".sd-code-variable",
+      ".sd-code-definition",
+      ".sd-code-function",
+      ".sd-code-operator",
+      ".sd-code-punctuation",
+      ".sd-code-tag",
+      ".sd-code-attribute",
+    ].join(",")
+  );
+}
+
 describe("code highlighting", () => {
   it("highlights javascript fenced code without changing raw markdown text", async () => {
     const markdown = "```js\nconst answer = 42;\n```";
@@ -52,6 +69,19 @@ describe("code highlighting", () => {
 
     expect(contentText(container)).toContain(
       '<section class="hero">hi</section>'
+    );
+  });
+
+  it("highlights bash fenced code", async () => {
+    const markdown = "```bash\nif [ -f file ]; then echo ok; fi\n```";
+    const { container } = render(<Sourcedown markdown={markdown} />);
+
+    await waitFor(() => {
+      expect(highlightedCode(container)).not.toBeNull();
+    });
+
+    expect(contentText(container)).toContain(
+      "if [ -f file ]; then echo ok; fi"
     );
   });
 });
