@@ -4,6 +4,7 @@ import { markdown as markdownLanguage } from "@codemirror/lang-markdown";
 import { EditorState, type Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { useEffect, useRef } from "react";
+import { linkClickExtension } from "./linkClick";
 import {
   markdownDecorationsExtension,
   markdownDecorationsTheme,
@@ -17,7 +18,9 @@ export interface SourcedownProps {
   onLinkClick?: (event: MouseEvent, href: string) => void;
 }
 
-function createExtensions(): Extension[] {
+function createExtensions(
+  onLinkClickRef: React.MutableRefObject<SourcedownProps["onLinkClick"]>
+): Extension[] {
   return [
     EditorState.readOnly.of(true),
     EditorView.editable.of(false),
@@ -26,6 +29,7 @@ function createExtensions(): Extension[] {
     sourcedownBaseTheme,
     markdownDecorationsExtension,
     markdownDecorationsTheme,
+    linkClickExtension(onLinkClickRef),
     EditorView.contentAttributes.of({
       "aria-label": "markdown source",
       role: "textbox",
@@ -85,10 +89,16 @@ export function Sourcedown({
   markdown,
   className,
   autoScroll = true,
+  onLinkClick,
 }: SourcedownProps): React.ReactElement {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const markdownRef = useRef(markdown);
+  const onLinkClickRef = useRef(onLinkClick);
+
+  useEffect(() => {
+    onLinkClickRef.current = onLinkClick;
+  }, [onLinkClick]);
 
   useEffect(() => {
     const parent = rootRef.current;
@@ -100,7 +110,7 @@ export function Sourcedown({
       parent,
       state: EditorState.create({
         doc: markdownRef.current,
-        extensions: createExtensions(),
+        extensions: createExtensions(onLinkClickRef),
       }),
     });
 
