@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "./main";
 
@@ -8,6 +8,7 @@ function sourceText(element: HTMLElement): string {
 
 describe("sourcedown site", () => {
   afterEach(() => {
+    cleanup();
     vi.useRealTimers();
   });
 
@@ -36,23 +37,21 @@ describe("sourcedown site", () => {
     vi.useFakeTimers();
     render(<App />);
 
-    const demo = screen.getByLabelText("autoplay sourcedown stream");
+    const demo = screen.getByRole("region", {
+      name: "autoplay sourcedown stream",
+    });
 
-    act(() => {
+    await act(async () => {
       vi.advanceTimersByTime(120);
     });
 
-    await waitFor(() => {
-      expect(sourceText(demo)).toContain("# live source stream");
-    });
+    expect(sourceText(demo)).toContain("# live source stream");
     expect(sourceText(demo)).not.toContain("copy remains raw markdown");
 
-    act(() => {
+    await act(async () => {
       vi.advanceTimersByTime(5000);
     });
 
-    await waitFor(() => {
-      expect(sourceText(demo)).toContain("copy remains raw markdown");
-    });
+    expect(sourceText(demo)).toContain("copy remains raw markdown");
   });
 });
