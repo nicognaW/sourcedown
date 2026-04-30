@@ -96,4 +96,31 @@ describe("code highlighting", () => {
     expect(contentText(container)).toContain("# Heading");
     expect(contentText(container)).toContain("**bold**");
   });
+
+  it("highlights typescript and tsx aliases", async () => {
+    for (const markdown of [
+      "```ts\nconst answer: number = 42;\n```",
+      "```tsx\nconst node = <span>hi</span>;\n```",
+    ]) {
+      const { container, unmount } = render(<Sourcedown markdown={markdown} />);
+
+      await waitFor(() => {
+        expect(highlightedCode(container)).not.toBeNull();
+      });
+
+      expect(contentText(container)).toContain("const");
+      unmount();
+    }
+  });
+
+  it("falls back to plaintext for unknown code fences", async () => {
+    const markdown = "```unknown\nplain source stays plain\n```";
+    const { container } = render(<Sourcedown markdown={markdown} />);
+
+    await waitFor(() => {
+      expect(contentText(container)).toContain("plain source stays plain");
+    });
+
+    expect(highlightedCode(container)).toBeNull();
+  });
 });
