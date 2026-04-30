@@ -21,9 +21,43 @@ h1 {
   font-size: 22px;
 }
 
+h2 {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #555;
+}
+
 section {
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   background: white;
   padding: 24px;
+  margin-bottom: 24px;
+}
+
+.demo-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.demo-controls button {
+  padding: 4px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.demo-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.demo-note {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #666;
 }
