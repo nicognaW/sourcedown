@@ -7,7 +7,9 @@ function dec(container: HTMLElement, cls: string): Element | null {
 }
 
 function decText(container: HTMLElement, cls: string): string {
-  return dec(container, cls)?.textContent ?? "";
+  return Array.from(container.querySelectorAll(`.${cls}`))
+    .map((el) => el.textContent ?? "")
+    .join("");
 }
 
 describe("markdown semantic decorations", () => {

@@ -10,12 +10,19 @@ import {
 
 const decs = {
   strong: Decoration.mark({ class: "sd-strong" }),
+  em: Decoration.mark({ class: "sd-em" }),
   h1: Decoration.mark({ class: "sd-h1" }),
   h2: Decoration.mark({ class: "sd-h2" }),
   h3: Decoration.mark({ class: "sd-h3" }),
   h4: Decoration.mark({ class: "sd-h4" }),
   h5: Decoration.mark({ class: "sd-h5" }),
   h6: Decoration.mark({ class: "sd-h6" }),
+  inlineCode: Decoration.mark({ class: "sd-inline-code" }),
+  codeBlock: Decoration.mark({ class: "sd-code-block" }),
+  link: Decoration.mark({ class: "sd-link" }),
+  blockquote: Decoration.mark({ class: "sd-blockquote" }),
+  listItem: Decoration.mark({ class: "sd-list-item" }),
+  hr: Decoration.mark({ class: "sd-hr" }),
 };
 
 function buildDecorations(view: EditorView): DecorationSet {
@@ -48,6 +55,28 @@ function buildDecorations(view: EditorView): DecorationSet {
           break;
         case "StrongEmphasis":
           marks.push({ from: node.from, to: node.to, dec: decs.strong });
+          break;
+        case "Emphasis":
+          marks.push({ from: node.from, to: node.to, dec: decs.em });
+          break;
+        case "InlineCode":
+          marks.push({ from: node.from, to: node.to, dec: decs.inlineCode });
+          break;
+        case "FencedCode":
+        case "CodeBlock":
+          marks.push({ from: node.from, to: node.to, dec: decs.codeBlock });
+          break;
+        case "Link":
+          marks.push({ from: node.from, to: node.to, dec: decs.link });
+          break;
+        case "Blockquote":
+          marks.push({ from: node.from, to: node.to, dec: decs.blockquote });
+          break;
+        case "ListItem":
+          marks.push({ from: node.from, to: node.to, dec: decs.listItem });
+          break;
+        case "HorizontalRule":
+          marks.push({ from: node.from, to: node.to, dec: decs.hr });
           break;
       }
     });
@@ -99,7 +128,31 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-h4": { fontWeight: "var(--sd-heading-weight, 700)" },
   ".sd-h5": { fontWeight: "var(--sd-heading-weight, 700)" },
   ".sd-h6": { fontWeight: "var(--sd-heading-weight, 700)" },
-  ".sd-strong": {
-    fontWeight: "bold",
+  ".sd-strong": { fontWeight: "bold" },
+  ".sd-em": { fontStyle: "italic" },
+  ".sd-inline-code": {
+    fontFamily:
+      "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
+    backgroundColor: "var(--sd-inline-code-bg, rgba(0,0,0,0.06))",
+    borderRadius: "3px",
+    padding: "0.1em 0.25em",
+    fontSize: "0.9em",
+  },
+  ".sd-code-block": {
+    fontFamily:
+      "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
+    fontSize: "0.9em",
+  },
+  ".sd-link": {
+    color: "var(--sd-link-color, #0969da)",
+    textDecoration: "underline",
+    textDecorationColor: "var(--sd-link-underline, rgba(9,105,218,0.4))",
+    cursor: "pointer",
+  },
+  ".sd-blockquote": {
+    color: "var(--sd-blockquote-color, rgba(0,0,0,0.6))",
+  },
+  ".sd-hr": {
+    opacity: "0.4",
   },
 });
