@@ -36,4 +36,103 @@ describe("markdown semantic decorations", () => {
     expect(dec(container, "sd-h2")).not.toBeNull();
     expect(dec(container, "sd-h3")).not.toBeNull();
   });
+
+  it("marks italic ranges with sd-em", async () => {
+    const { container } = render(<Sourcedown markdown="_italic_" />);
+
+    await waitFor(() => {
+      expect(dec(container, "sd-em")).not.toBeNull();
+    });
+
+    expect(decText(container, "sd-em")).toContain("italic");
+    expect(decText(container, "sd-em")).toContain("_");
+  });
+
+  it("marks inline code with sd-inline-code", async () => {
+    const { container } = render(<Sourcedown markdown="`code`" />);
+
+    await waitFor(() => {
+      expect(dec(container, "sd-inline-code")).not.toBeNull();
+    });
+
+    expect(decText(container, "sd-inline-code")).toContain("code");
+    expect(decText(container, "sd-inline-code")).toContain("`");
+  });
+
+  it("marks fenced code blocks with sd-code-block", async () => {
+    const { container } = render(
+      <Sourcedown markdown={"```ts\nconst x = 1;\n```"} />
+    );
+
+    await waitFor(() => {
+      expect(dec(container, "sd-code-block")).not.toBeNull();
+    });
+
+    expect(decText(container, "sd-code-block")).toContain("const x = 1;");
+    expect(decText(container, "sd-code-block")).toContain("```");
+  });
+
+  it("marks link ranges with sd-link", async () => {
+    const { container } = render(
+      <Sourcedown markdown="[text](https://example.com)" />
+    );
+
+    await waitFor(() => {
+      expect(dec(container, "sd-link")).not.toBeNull();
+    });
+
+    expect(decText(container, "sd-link")).toContain("text");
+    expect(decText(container, "sd-link")).toContain("[");
+    expect(decText(container, "sd-link")).toContain("]");
+  });
+
+  it("marks blockquotes with sd-blockquote", async () => {
+    const { container } = render(<Sourcedown markdown="> quote" />);
+
+    await waitFor(() => {
+      expect(dec(container, "sd-blockquote")).not.toBeNull();
+    });
+
+    expect(decText(container, "sd-blockquote")).toContain("quote");
+    expect(decText(container, "sd-blockquote")).toContain(">");
+  });
+
+  it("marks list items with sd-list-item", async () => {
+    const { container } = render(<Sourcedown markdown="- item" />);
+
+    await waitFor(() => {
+      expect(dec(container, "sd-list-item")).not.toBeNull();
+    });
+
+    expect(decText(container, "sd-list-item")).toContain("item");
+    expect(decText(container, "sd-list-item")).toContain("-");
+  });
+
+  it("marks horizontal rules with sd-hr", async () => {
+    const { container } = render(<Sourcedown markdown="---" />);
+
+    await waitFor(() => {
+      expect(dec(container, "sd-hr")).not.toBeNull();
+    });
+  });
+
+  it("does not crash on incomplete streaming markdown", async () => {
+    const incompletes = [
+      "**bold",
+      "[text](",
+      "```ts\nconst x =",
+      "> ",
+      "# ",
+    ];
+
+    for (const md of incompletes) {
+      const { container, unmount } = render(<Sourcedown markdown={md} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".cm-content")).toBeTruthy();
+      });
+
+      unmount();
+    }
+  });
 });
