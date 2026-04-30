@@ -16,7 +16,11 @@ describe("sourcedown site", () => {
         /keep every markdown character visible and copyable/i
       )
     ).toBeInTheDocument();
-    expect(screen.getByText(/why source mode/i)).toBeInTheDocument();
-    expect(screen.getByText(/WYSIWYG renderers hide syntax/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "why source mode markdown" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/WYSIWYG renderers hide syntax/i)
+    ).toBeInTheDocument();
   });
 });

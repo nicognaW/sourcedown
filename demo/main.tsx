@@ -1,160 +1,126 @@
-import { StrictMode, useEffect, useRef, useState } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Sourcedown } from "../src";
 import "./style.css";
 
-const staticSample = `# sourcedown
+const heroSample = `# sourcedown
 
-source-mode markdown renderer for AI streaming output.
+**source-mode markdown** for streaming AI output.
 
-## what it does
-
-**all markdown source characters stay visible** while the text gets semantic styling.
-
-- raw markdown remains selectable and copyable
-- _italic_, **bold**, and \`inline code\` all styled with markers intact
-- streaming append uses incremental CodeMirror transactions
-
-## code highlighting
+- every marker stays visible
+- streaming appends incrementally
+- [links](https://example.com) stay clickable
 
 \`\`\`ts
 import { Sourcedown } from "sourcedown";
 import "sourcedown/style.css";
-
-function Message({ markdown }: { markdown: string }) {
-  return <Sourcedown markdown={markdown} />;
-}
 \`\`\`
-
-\`\`\`json
-{
-  "name": "sourcedown",
-  "type": "module"
-}
-\`\`\`
-
-## links
-
-[open documentation](https://github.com/sourcedown) are clickable but copy as raw source.
-
-## blockquotes
-
-> sourcedown sits between plain source and full WYSIWYG — source text stays the UI, but semantic styling makes it readable.
-
-## lists
-
-1. install: \`npm install sourcedown\`
-2. import the component and styles
-3. pass the \`markdown\` prop
-
----
-
-horizontal rules are also styled.
 `;
 
-const streamingSample = `# AI streaming demo
-
-This message is being streamed **token by token**.
-
-Watch how incomplete markdown stays visible during generation:
-
-- list items appear as they stream
-- \`inline code\` markers stay visible
-- [links](https://example.com) are clickable once complete
-
-\`\`\`ts
-const response = await fetch("/api/chat");
-const reader = response.body!.getReader();
-const decoder = new TextDecoder();
-
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  setMarkdown((prev) => prev + decoder.decode(value));
-}
-\`\`\`
-
-> copy any text above — you'll get the raw markdown source.
-`;
-
-function StaticDemo() {
+export function App() {
   return (
-    <section>
-      <h2>static</h2>
-      <Sourcedown markdown={staticSample} />
-    </section>
-  );
-}
+    <main className="site-shell">
+      <header className="site-nav" aria-label="site navigation">
+        <a className="brand" href="#top">
+          sourcedown
+        </a>
+        <nav>
+          <a href="#docs">Docs</a>
+          <a href="#features">Features</a>
+          <a href="#demo">Demo</a>
+          <a href="#roadmap">Roadmap</a>
+        </nav>
+      </header>
 
-function StreamingDemo() {
-  const [markdown, setMarkdown] = useState("");
-  const [running, setRunning] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+      <section className="hero" id="top">
+        <div className="hero-copy">
+          <p className="eyebrow">source-as-is renderer</p>
+          <h1>source-mode markdown for streaming AI output</h1>
+          <p className="hero-subtitle">
+            keep every markdown character visible and copyable, while
+            headings, links, code, and lists still read like rendered markdown
+          </p>
+          <div className="hero-actions">
+            <a className="primary-action" href="#docs">
+              Read the docs
+            </a>
+            <a className="secondary-action" href="#demo">
+              View demo
+            </a>
+          </div>
+        </div>
 
-  function start() {
-    setMarkdown("");
-    setRunning(true);
-    let index = 0;
-    intervalRef.current = setInterval(() => {
-      index += 3;
-      setMarkdown(streamingSample.slice(0, index));
-      if (index >= streamingSample.length) {
-        clearInterval(intervalRef.current!);
-        setRunning(false);
-      }
-    }, 20);
-  }
+        <div className="hero-demo" aria-label="sourcedown preview">
+          <Sourcedown markdown={heroSample} />
+        </div>
+      </section>
 
-  function reset() {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    setMarkdown("");
-    setRunning(false);
-  }
-
-  return (
-    <section>
-      <h2>streaming</h2>
-      <div className="demo-controls">
-        <button onClick={start} disabled={running}>
-          {running ? "streaming…" : "start stream"}
-        </button>
-        <button onClick={reset} disabled={!markdown && !running}>
-          reset
-        </button>
-      </div>
-      <Sourcedown markdown={markdown} />
-    </section>
-  );
-}
-
-function LinkDemo() {
-  const [lastHref, setLastHref] = useState<string | null>(null);
-
-  return (
-    <section>
-      <h2>custom link handler</h2>
-      <Sourcedown
-        markdown={
-          "click [example.com](https://example.com) or [github.com](https://github.com)"
-        }
-        onLinkClick={(_event, href) => setLastHref(href)}
-      />
-      {lastHref && (
-        <p className="demo-note">
-          last clicked: <code>{lastHref}</code>
+      <section className="rationale" aria-labelledby="why-source-mode">
+        <p className="eyebrow">why source mode</p>
+        <h2 id="why-source-mode">why source mode markdown</h2>
+        <p>
+          WYSIWYG renderers hide syntax, so markdown-literate users lose sight
+          of what was generated and what will copy. Plain markdown source is
+          trustworthy, but noisy. sourcedown keeps the source as the document
+          and adds just enough semantic styling to make streamed output
+          comfortable to read.
         </p>
-      )}
-    </section>
+      </section>
+
+      <section className="feature-grid" id="features" aria-label="features">
+        <article>
+          <h3>source-as-is</h3>
+          <p>syntax stays visible, selectable, and copyable as raw markdown.</p>
+        </article>
+        <article>
+          <h3>streaming first</h3>
+          <p>append-only updates go into the CodeMirror buffer incrementally.</p>
+        </article>
+        <article>
+          <h3>clickable links</h3>
+          <p>full markdown link ranges can open links without replacing text.</p>
+        </article>
+        <article>
+          <h3>CM6 highlighting</h3>
+          <p>common fenced code languages get native CodeMirror highlighting.</p>
+        </article>
+      </section>
+
+      <section className="compact-section" id="docs">
+        <p className="eyebrow">get started</p>
+        <h2>install and render markdown</h2>
+        <pre>
+          <code>{`bun add sourcedown
+
+import { Sourcedown } from "sourcedown";
+import "sourcedown/style.css";
+
+export function Message({ markdown }: { markdown: string }) {
+  return <Sourcedown markdown={markdown} />;
+}`}</code>
+        </pre>
+      </section>
+
+      <section className="compact-section" id="demo">
+        <p className="eyebrow">demo</p>
+        <h2>autoplay streaming demo</h2>
+        <p>coming in the next slice.</p>
+      </section>
+
+      <section className="compact-section" id="roadmap">
+        <p className="eyebrow">roadmap</p>
+        <h2>next up</h2>
+        <p>editable input, shiki highlighting, shadcn wrapper, and widgets.</p>
+      </section>
+    </main>
   );
 }
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <main>
-      <h1>sourcedown demo</h1>
-      <StaticDemo />
-      <StreamingDemo />
-      <LinkDemo />
-    </main>
-  </StrictMode>
-);
+const root = document.getElementById("root");
+if (root) {
+  createRoot(root).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+}
