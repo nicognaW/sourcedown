@@ -4,6 +4,7 @@ import {
   syntaxHighlighting,
 } from "@codemirror/language";
 import { css } from "@codemirror/lang-css";
+import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
 import { tags } from "@lezer/highlight";
@@ -40,6 +41,10 @@ export function codeLanguageFor(info: string): Language | null {
     return css().language;
   }
 
+  if (language === "html" || language === "htm") {
+    return html({ matchClosingTags: false }).language;
+  }
+
   return null;
 }
 
@@ -48,6 +53,8 @@ export const codeHighlightExtension = syntaxHighlighting(
     { tag: tags.keyword, class: "sd-code-keyword" },
     { tag: tags.string, class: "sd-code-string" },
     { tag: tags.propertyName, class: "sd-code-string" },
+    { tag: tags.tagName, class: "sd-code-tag" },
+    { tag: tags.attributeName, class: "sd-code-attribute" },
     { tag: tags.number, class: "sd-code-number" },
     { tag: tags.comment, class: "sd-code-comment" },
     { tag: tags.variableName, class: "sd-code-variable" },
@@ -64,6 +71,12 @@ export const codeHighlightTheme = EditorView.baseTheme({
   },
   ".sd-code-string": {
     color: "var(--sd-code-string, #0a3069)",
+  },
+  ".sd-code-tag": {
+    color: "var(--sd-code-tag, #116329)",
+  },
+  ".sd-code-attribute": {
+    color: "var(--sd-code-attribute, #953800)",
   },
   ".sd-code-number": {
     color: "var(--sd-code-number, #0550ae)",
