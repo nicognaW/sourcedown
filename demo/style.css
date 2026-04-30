@@ -51,6 +51,10 @@ body {
   gap: 18px;
 }
 
+.site-nav nav a {
+  transition: color 0.15s ease;
+}
+
 .site-nav nav a:hover {
   color: #111111;
 }
@@ -115,12 +119,23 @@ h1 {
 .primary-action {
   background: #111111;
   color: #ffffff;
+  transition: background 0.15s ease;
+}
+
+.primary-action:hover {
+  background: #333333;
 }
 
 .secondary-action {
   border: 1px solid #d4d4d4;
   background: #ffffff;
   color: #111111;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.secondary-action:hover {
+  background: #f5f5f5;
+  border-color: #bbbbbb;
 }
 
 .hero-demo,
@@ -153,7 +168,7 @@ h2 {
 }
 
 .rationale p:last-child,
-.compact-section p {
+.compact-section p:not(.docs-p) {
   margin: 0;
   color: #4b5563;
   font-size: 16px;
@@ -204,6 +219,13 @@ h2 {
 .compact-section code {
   font-family:
     ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+}
+
+:not(pre) > code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.055);
+  font-size: 0.875em;
 }
 
 .docs-h2 {
@@ -263,6 +285,10 @@ h2 {
   margin-bottom: 0;
 }
 
+.docs-list strong {
+  color: #111111;
+}
+
 .compact-section p + h2 {
   margin-top: 32px;
 }
@@ -273,6 +299,10 @@ h2 {
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   background: #ffffff;
+}
+
+.autoplay-demo .sourcedown {
+  padding: 14px 18px;
 }
 
 .demo-status {
@@ -377,5 +407,14 @@ h2 {
   .rationale,
   .compact-section {
     padding-top: 26px;
+  }
+
+  .docs-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .docs-table td:first-child {
+    white-space: normal;
   }
 }
