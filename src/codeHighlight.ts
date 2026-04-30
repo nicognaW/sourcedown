@@ -8,6 +8,7 @@ import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
+import { markdownLanguage } from "@codemirror/lang-markdown";
 import { shell } from "@codemirror/legacy-modes/mode/shell";
 import { tags } from "@lezer/highlight";
 import { EditorView } from "@codemirror/view";
@@ -56,6 +57,10 @@ export function codeLanguageFor(info: string): Language | null {
     return StreamLanguage.define(shell);
   }
 
+  if (language === "md" || language === "markdown") {
+    return markdownLanguage;
+  }
+
   return null;
 }
 
@@ -66,6 +71,10 @@ export const codeHighlightExtension = syntaxHighlighting(
     { tag: tags.propertyName, class: "sd-code-string" },
     { tag: tags.tagName, class: "sd-code-tag" },
     { tag: tags.attributeName, class: "sd-code-attribute" },
+    { tag: tags.heading, class: "sd-code-heading" },
+    { tag: tags.strong, class: "sd-code-strong" },
+    { tag: tags.emphasis, class: "sd-code-emphasis" },
+    { tag: tags.link, class: "sd-code-link" },
     { tag: tags.number, class: "sd-code-number" },
     { tag: tags.comment, class: "sd-code-comment" },
     { tag: tags.variableName, class: "sd-code-variable" },
@@ -88,6 +97,19 @@ export const codeHighlightTheme = EditorView.baseTheme({
   },
   ".sd-code-attribute": {
     color: "var(--sd-code-attribute, #953800)",
+  },
+  ".sd-code-heading": {
+    color: "var(--sd-code-heading, #0550ae)",
+    fontWeight: "600",
+  },
+  ".sd-code-strong": {
+    fontWeight: "600",
+  },
+  ".sd-code-emphasis": {
+    fontStyle: "italic",
+  },
+  ".sd-code-link": {
+    color: "var(--sd-code-link, #0969da)",
   },
   ".sd-code-number": {
     color: "var(--sd-code-number, #0550ae)",
