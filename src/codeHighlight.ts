@@ -1,12 +1,14 @@
 import {
   HighlightStyle,
   type Language,
+  StreamLanguage,
   syntaxHighlighting,
 } from "@codemirror/language";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
+import { shell } from "@codemirror/legacy-modes/mode/shell";
 import { tags } from "@lezer/highlight";
 import { EditorView } from "@codemirror/view";
 
@@ -43,6 +45,15 @@ export function codeLanguageFor(info: string): Language | null {
 
   if (language === "html" || language === "htm") {
     return html({ matchClosingTags: false }).language;
+  }
+
+  if (
+    language === "bash" ||
+    language === "sh" ||
+    language === "shell" ||
+    language === "zsh"
+  ) {
+    return StreamLanguage.define(shell);
   }
 
   return null;
