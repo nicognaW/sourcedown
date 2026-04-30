@@ -24,4 +24,27 @@ describe("link click behavior", () => {
       "https://example.com"
     );
   });
+
+  it("opens href in new tab by default when no onLinkClick provided", async () => {
+    const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+
+    const { container } = render(
+      <Sourcedown markdown="[text](https://example.com)" />
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector(".sd-link")).toBeTruthy();
+    });
+
+    const linkSpan = container.querySelector(".sd-link")!;
+    fireEvent.click(linkSpan);
+
+    expect(openSpy).toHaveBeenCalledWith(
+      "https://example.com",
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    openSpy.mockRestore();
+  });
 });
