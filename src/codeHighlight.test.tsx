@@ -84,4 +84,16 @@ describe("code highlighting", () => {
       "if [ -f file ]; then echo ok; fi"
     );
   });
+
+  it("highlights markdown fenced code", async () => {
+    const markdown = "```md\n# Heading\n**bold**\n```";
+    const { container } = render(<Sourcedown markdown={markdown} />);
+
+    await waitFor(() => {
+      expect(container.querySelector(".sd-code-heading")).not.toBeNull();
+    });
+
+    expect(contentText(container)).toContain("# Heading");
+    expect(contentText(container)).toContain("**bold**");
+  });
 });
