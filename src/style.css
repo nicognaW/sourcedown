@@ -1,0 +1,12 @@
+.sourcedown {
+  width: 100%;
+  color: var(--sd-foreground, #171717);
+}
+
+.sourcedown .cm-editor {
+  height: 100%;
+}
+
+.sourcedown .cm-scroller {
+  scrollbar-width: thin;
+}
