@@ -47,4 +47,24 @@ describe("link click behavior", () => {
 
     openSpy.mockRestore();
   });
+
+  it("does not call onLinkClick when clicking outside a link", async () => {
+    const onLinkClick = vi.fn();
+    const { container } = render(
+      <Sourcedown
+        markdown={"[link](https://example.com)\n\nplain text"}
+        onLinkClick={onLinkClick}
+      />
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector(".cm-content")).toBeTruthy();
+    });
+
+    // Click on the content element itself (not a link span)
+    const content = container.querySelector(".cm-content")!;
+    fireEvent.click(content);
+
+    expect(onLinkClick).not.toHaveBeenCalled();
+  });
 });
