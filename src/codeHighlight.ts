@@ -4,6 +4,7 @@ import {
   syntaxHighlighting,
 } from "@codemirror/language";
 import { javascript } from "@codemirror/lang-javascript";
+import { json } from "@codemirror/lang-json";
 import { tags } from "@lezer/highlight";
 import { EditorView } from "@codemirror/view";
 
@@ -30,6 +31,10 @@ export function codeLanguageFor(info: string): Language | null {
     return javascript({ jsx: true, typescript: true }).language;
   }
 
+  if (language === "json") {
+    return json().language;
+  }
+
   return null;
 }
 
@@ -37,6 +42,7 @@ export const codeHighlightExtension = syntaxHighlighting(
   HighlightStyle.define([
     { tag: tags.keyword, class: "sd-code-keyword" },
     { tag: tags.string, class: "sd-code-string" },
+    { tag: tags.propertyName, class: "sd-code-string" },
     { tag: tags.number, class: "sd-code-number" },
     { tag: tags.comment, class: "sd-code-comment" },
     { tag: tags.variableName, class: "sd-code-variable" },
