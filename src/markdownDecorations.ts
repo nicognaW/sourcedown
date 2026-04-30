@@ -10,6 +10,12 @@ import {
 
 const decs = {
   strong: Decoration.mark({ class: "sd-strong" }),
+  h1: Decoration.mark({ class: "sd-h1" }),
+  h2: Decoration.mark({ class: "sd-h2" }),
+  h3: Decoration.mark({ class: "sd-h3" }),
+  h4: Decoration.mark({ class: "sd-h4" }),
+  h5: Decoration.mark({ class: "sd-h5" }),
+  h6: Decoration.mark({ class: "sd-h6" }),
 };
 
 function buildDecorations(view: EditorView): DecorationSet {
@@ -20,6 +26,26 @@ function buildDecorations(view: EditorView): DecorationSet {
     .cursor()
     .iterate((node) => {
       switch (node.name) {
+        case "ATXHeading1":
+        case "SetextHeading1":
+          marks.push({ from: node.from, to: node.to, dec: decs.h1 });
+          break;
+        case "ATXHeading2":
+        case "SetextHeading2":
+          marks.push({ from: node.from, to: node.to, dec: decs.h2 });
+          break;
+        case "ATXHeading3":
+          marks.push({ from: node.from, to: node.to, dec: decs.h3 });
+          break;
+        case "ATXHeading4":
+          marks.push({ from: node.from, to: node.to, dec: decs.h4 });
+          break;
+        case "ATXHeading5":
+          marks.push({ from: node.from, to: node.to, dec: decs.h5 });
+          break;
+        case "ATXHeading6":
+          marks.push({ from: node.from, to: node.to, dec: decs.h6 });
+          break;
         case "StrongEmphasis":
           marks.push({ from: node.from, to: node.to, dec: decs.strong });
           break;
@@ -55,6 +81,24 @@ export const markdownDecorationsExtension = ViewPlugin.fromClass(
 );
 
 export const markdownDecorationsTheme = EditorView.baseTheme({
+  ".sd-h1": {
+    fontSize: "var(--sd-h1-size, 1.5em)",
+    fontWeight: "var(--sd-heading-weight, 700)",
+    lineHeight: "1.3",
+  },
+  ".sd-h2": {
+    fontSize: "var(--sd-h2-size, 1.3em)",
+    fontWeight: "var(--sd-heading-weight, 700)",
+    lineHeight: "1.3",
+  },
+  ".sd-h3": {
+    fontSize: "var(--sd-h3-size, 1.15em)",
+    fontWeight: "var(--sd-heading-weight, 700)",
+    lineHeight: "1.3",
+  },
+  ".sd-h4": { fontWeight: "var(--sd-heading-weight, 700)" },
+  ".sd-h5": { fontWeight: "var(--sd-heading-weight, 700)" },
+  ".sd-h6": { fontWeight: "var(--sd-heading-weight, 700)" },
   ".sd-strong": {
     fontWeight: "bold",
   },
