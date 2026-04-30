@@ -27,10 +27,28 @@ function createExtensions(): Extension[] {
   ];
 }
 
-function applyMarkdown(view: EditorView, previous: string, next: string): void {
+function isAtScrollBottom(element: HTMLElement): boolean {
+  return (
+    element.scrollTop + element.clientHeight >= element.scrollHeight - 2
+  );
+}
+
+function scrollToBottom(view: EditorView): void {
+  view.scrollDOM.scrollTop = view.scrollDOM.scrollHeight;
+}
+
+function applyMarkdown(
+  view: EditorView,
+  previous: string,
+  next: string,
+  shouldAutoScroll: boolean
+): void {
   if (previous === next) {
     return;
   }
+
+  const shouldFollow =
+    shouldAutoScroll && isAtScrollBottom(view.scrollDOM);
 
   if (next.startsWith(previous)) {
     view.dispatch({
@@ -39,6 +57,9 @@ function applyMarkdown(view: EditorView, previous: string, next: string): void {
         insert: next.slice(previous.length),
       },
     });
+    if (shouldFollow) {
+      scrollToBottom(view);
+    }
     return;
   }
 
@@ -49,11 +70,15 @@ function applyMarkdown(view: EditorView, previous: string, next: string): void {
       insert: next,
     },
   });
+  if (shouldFollow) {
+    scrollToBottom(view);
+  }
 }
 
 export function Sourcedown({
   markdown,
   className,
+  autoScroll = true,
 }: SourcedownProps): React.ReactElement {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -74,6 +99,9 @@ export function Sourcedown({
     });
 
     viewRef.current = view;
+    if (autoScroll) {
+      scrollToBottom(view);
+    }
 
     return () => {
       view.destroy();
@@ -88,9 +116,9 @@ export function Sourcedown({
       return;
     }
 
-    applyMarkdown(view, markdownRef.current, markdown);
+    applyMarkdown(view, markdownRef.current, markdown, autoScroll);
     markdownRef.current = markdown;
-  }, [markdown]);
+  }, [markdown, autoScroll]);
 
   return (
     <div
