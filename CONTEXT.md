@@ -57,6 +57,8 @@ The v1 landing copy uses this positioning:
 - headline: "source-mode markdown for streaming AI output"
 - subtitle: "keep every markdown character visible and copyable, while headings, links, code, and lists still read like rendered markdown"
 
+The site must include a concise section explaining why source mode markdown exists. Core argument: developers who understand markdown want to see the real source because WYSIWYG renderers hide syntax and can feel unsafe; plain markdown is trustworthy but noisy; sourcedown keeps the trustworthy source visible while adding enough semantic styling to make streamed output comfortable to read.
+
 ## decisions
 
 - v1 is a React-only client component for modern browsers.
@@ -76,3 +78,4 @@ The v1 landing copy uses this positioning:
 - v1 site docs mirror README scope and skip search/Cmd+K/multi-page docs navigation.
 - v1 site headline and subtitle use the sourcedown-specific source-mode positioning, not a generic markdown renderer pitch.
 - v1 site keeps post-feature content compact, following streamdown.ai's rhythm rather than expanding into a long documentation page.
+- v1 site includes a "why source mode markdown" section based on NK's rationale: visibility and raw-copy safety for markdown-literate users, with better readability than plain source.

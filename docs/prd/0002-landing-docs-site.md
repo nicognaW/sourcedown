@@ -15,6 +15,7 @@ Build a single-page landing and docs site in the existing demo app.
 The page follows the streamdown.ai pattern:
 
 - product-first hero
+- concise "why source mode markdown" explanation
 - docs/get-started as the main CTA path
 - concise feature sections
 - autoplay streaming demo
@@ -39,6 +40,7 @@ The site should not become a long multi-page docs app in v1. It should give enou
 10. As a developer checking scope, I want non-goals and roadmap called out, so that I do not expect input, shiki, shadcn registry, or playground behavior in v1.
 11. As NK reviewing the project, I want the site to stay single-page, so that agents can ship it cleanly without overcomplicating the docs architecture.
 12. As a future contributor, I want the site structure to be easy to extend later, so that multi-page docs or a playground can be added when sourcedown input exists.
+13. As a markdown-literate developer, I want the site to explain why source mode markdown is useful, so that I understand the trust/readability trade-off.
 
 ## Implementation Decisions
 
@@ -48,6 +50,7 @@ The site should not become a long multi-page docs app in v1. It should give enou
 - Use the confirmed subtitle: "keep every markdown character visible and copyable, while headings, links, code, and lists still read like rendered markdown".
 - Main navigation should be concise: Docs, Features, Demo, Roadmap. A GitHub link may be present only if a real public URL exists.
 - Main CTA follows the streamdown pattern and points toward docs/get-started, not a premature external package/repo campaign.
+- Include a short landing section explaining why source mode markdown exists: WYSIWYG renderers hide markdown syntax and can feel unsafe; plain markdown source is trustworthy but visually noisy; sourcedown keeps the source visible while making it readable.
 - Live demo is autoplay-only in v1. Do not include a playground, textarea, sample picker, or user input UI.
 - Feature grid focuses on four core points: source-as-is, streaming, clickable links, and CM6-native highlighting.
 - Docs content mirrors README scope: install, usage, streaming, link handling, props/API, supported syntax, code highlighting languages, theming variables, non-goals, and roadmap.
