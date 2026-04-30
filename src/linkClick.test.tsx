@@ -48,6 +48,19 @@ describe("link click behavior", () => {
     openSpy.mockRestore();
   });
 
+  it("link source text remains raw markdown (source-as-is invariant)", async () => {
+    const { container } = render(
+      <Sourcedown markdown="[text](https://example.com)" />
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector(".cm-content")).toBeTruthy();
+    });
+
+    const content = container.querySelector(".cm-content")!;
+    expect(content.textContent).toContain("[text](https://example.com)");
+  });
+
   it("does not call onLinkClick when clicking outside a link", async () => {
     const onLinkClick = vi.fn();
     const { container } = render(
