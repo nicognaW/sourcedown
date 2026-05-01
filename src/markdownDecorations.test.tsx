@@ -338,6 +338,25 @@ describe("markdown semantic decorations", () => {
       expect(lineTexts(container)).toContain("| `a | b` | ok |");
     });
 
+    it("keeps inline code styling inside table cells", async () => {
+      const codeTable = [
+        "| Prop | Type |",
+        "|---|---|",
+        "| `autoScroll` | `boolean` |",
+      ].join("\n");
+      const { container } = render(<Sourcedown markdown={codeTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-inline-code")).not.toBeNull();
+      });
+
+      const inlineCode = Array.from(
+        container.querySelectorAll(".sd-inline-code")
+      ).map((el) => el.textContent ?? "");
+      expect(inlineCode).toContain("`autoScroll`");
+      expect(inlineCode).toContain("`boolean`");
+    });
+
     it("accounts for CJK display width in source table cells", async () => {
       const cjkTable = [
         "|A|Value|",
