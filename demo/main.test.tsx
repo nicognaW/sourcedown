@@ -6,6 +6,12 @@ function sourceText(element: HTMLElement): string {
   return element.querySelector(".cm-content")?.textContent ?? "";
 }
 
+function sourceLines(element: HTMLElement): string[] {
+  return Array.from(element.querySelectorAll(".cm-line")).map(
+    (line) => line.textContent ?? ""
+  );
+}
+
 describe("sourcedown site", () => {
   afterEach(() => {
     cleanup();
@@ -77,14 +83,12 @@ describe("sourcedown site", () => {
 
     const api = screen.getByRole("region", { name: "API" });
     expect(sourceText(api)).toContain("# API");
-    // Tables now render as HTML <table> via widget (column-aligned, source-as-is copy preserved)
-    const apiTable = container.querySelector("#api table");
-    expect(apiTable).not.toBeNull();
-    const apiThs = Array.from(apiTable!.querySelectorAll("th")).map(
-      (el) => el.textContent ?? ""
-    );
-    expect(apiThs).toContain("Prop");
-    expect(apiThs).toContain("Type");
+    expect(container.querySelector("#api table")).toBeNull();
+    expect(sourceLines(api)).toContain("| Prop | Type | Default | Description |");
+    expect(api.querySelector(".sd-table-header-cell")).not.toBeNull();
+    expect(api.querySelector(".sd-table-cell")).toHaveStyle({
+      display: "inline-block",
+    });
 
     const roadmap = screen.getByRole("region", { name: "Roadmap" });
     expect(sourceText(roadmap)).toContain("# Roadmap");

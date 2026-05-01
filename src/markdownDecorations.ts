@@ -1,16 +1,6 @@
 import { syntaxTree } from "@codemirror/language";
-import {
-  type EditorState,
-  type Text,
-  RangeSetBuilder,
-  StateField,
-} from "@codemirror/state";
-import {
-  Decoration,
-  type DecorationSet,
-  EditorView,
-  WidgetType,
-} from "@codemirror/view";
+import { type EditorState, type Text, StateField } from "@codemirror/state";
+import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
 import type { SyntaxNodeRef } from "@lezer/common";
 
 /** Default style tokens — exported so they are testable and overridable via CSS vars. */
@@ -65,195 +55,160 @@ const decs: Record<string, Decoration> = {
   HorizontalRule: Decoration.mark({ class: "sd-hr" }),
 };
 
-/** Parsed cell data extracted from the lezer syntax tree. */
-interface TableData {
-  headers: string[];
-  delimiters: string[];
-  rows: string[][];
+type TableCellKind = "header" | "delimiter" | "body";
+
+interface TableCellRange {
+  from: number;
+  to: number;
+  column: number;
+  kind: TableCellKind;
+  text: string;
 }
 
-function splitPipeRow(row: string): string[] {
-  return row
-    .trim()
-    .replace(/^\|/, "")
-    .replace(/\|$/, "")
-    .split("|")
-    .map((cell) => cell.trim());
+interface TableLayout {
+  cells: TableCellRange[];
+  widths: number[];
+  lineStarts: number[];
 }
 
-function parseTable(tableNode: SyntaxNodeRef, doc: Text): TableData {
-  const headers: string[] = [];
-  let delimiters: string[] = [];
-  const rows: string[][] = [];
+function trimSegmentRange(
+  rowFrom: number,
+  segmentStart: number,
+  segmentEnd: number,
+  rawRow: string
+): { from: number; to: number; text: string } | null {
+  const segment = rawRow.slice(segmentStart, segmentEnd);
+  const leading = segment.length - segment.trimStart().length;
+  const trailing = segment.length - segment.trimEnd().length;
+  const from = rowFrom + segmentStart + leading;
+  const to = rowFrom + segmentEnd - trailing;
+  if (from >= to) return null;
+
+  return {
+    from,
+    to,
+    text: rawRow.slice(segmentStart + leading, segmentEnd - trailing),
+  };
+}
+
+function tableRowCellRanges(
+  from: number,
+  to: number,
+  doc: Text,
+  kind: TableCellKind
+): TableCellRange[] {
+  const rawRow = doc.sliceString(from, to);
+  const pipes: number[] = [];
+  for (let i = 0; i < rawRow.length; i++) {
+    if (rawRow[i] === "|") pipes.push(i);
+  }
+  if (pipes.length === 0) return [];
+
+  const boundaries = [-1, ...pipes, rawRow.length];
+  const cells: TableCellRange[] = [];
+  let column = 0;
+
+  for (let i = 0; i < boundaries.length - 1; i++) {
+    const segmentStart = boundaries[i] + 1;
+    const segmentEnd = boundaries[i + 1];
+    const segment = rawRow.slice(segmentStart, segmentEnd);
+    const isLeadingEdge =
+      i === 0 && rawRow.startsWith("|") && segment.trim() === "";
+    const isTrailingEdge =
+      i === boundaries.length - 2 &&
+      rawRow.endsWith("|") &&
+      segment.trim() === "";
+
+    if (isLeadingEdge || isTrailingEdge) {
+      continue;
+    }
+
+    const trimmed = trimSegmentRange(from, segmentStart, segmentEnd, rawRow);
+    if (trimmed) {
+      cells.push({ ...trimmed, column, kind });
+    }
+    column++;
+  }
+
+  return cells;
+}
+
+function tableCellWidth(text: string): number {
+  return Math.max(text.length, 3);
+}
+
+function parseTableLayout(tableNode: SyntaxNodeRef, doc: Text): TableLayout {
+  const cells: TableCellRange[] = [];
+  const widths: number[] = [];
+  const lineStarts: number[] = [];
+  const startLine = doc.lineAt(tableNode.from);
+  const endLine = doc.lineAt(Math.max(tableNode.from, tableNode.to - 1));
+
+  for (let line = startLine.number; line <= endLine.number; line++) {
+    lineStarts.push(doc.line(line).from);
+  }
 
   const cursor = tableNode.node.cursor();
-  if (!cursor.firstChild()) return { headers, delimiters, rows };
-
-  do {
-    if (cursor.name === "TableHeader") {
-      const hCursor = cursor.node.cursor();
-      if (hCursor.firstChild()) {
-        do {
-          if (hCursor.name === "TableCell") {
-            headers.push(doc.sliceString(hCursor.from, hCursor.to).trim());
-          }
-        } while (hCursor.nextSibling());
-      }
-    } else if (cursor.name === "TableDelimiter") {
-      delimiters = splitPipeRow(doc.sliceString(cursor.from, cursor.to));
-    } else if (cursor.name === "TableRow") {
-      const cells: string[] = [];
-      const rCursor = cursor.node.cursor();
-      if (rCursor.firstChild()) {
-        do {
-          if (rCursor.name === "TableCell") {
-            cells.push(doc.sliceString(rCursor.from, rCursor.to).trim());
-          }
-        } while (rCursor.nextSibling());
-      }
-      rows.push(cells);
-    }
-  } while (cursor.nextSibling());
-
-  return { headers, delimiters, rows };
-}
-
-/** Widget that renders a GFM table as a proper HTML <table> element. */
-class TableWidget extends WidgetType {
-  constructor(
-    private readonly headers: string[],
-    private readonly delimiters: string[],
-    private readonly rows: string[][],
-    private readonly rawMarkdown: string
-  ) {
-    super();
-  }
-
-  private appendPipe(row: HTMLTableRowElement): void {
-    const pipe = row.appendChild(document.createElement("td"));
-    pipe.className = "sd-table-pipe";
-    pipe.textContent = "|";
-  }
-
-  private appendSourceRow(
-    row: HTMLTableRowElement,
-    cells: string[],
-    tagName: "th" | "td",
-    className?: string
-  ): void {
-    this.appendPipe(row);
-    for (const cell of cells) {
-      const td = row.appendChild(document.createElement(tagName));
-      if (className) td.className = className;
-      td.textContent = cell;
-      this.appendPipe(row);
-    }
-  }
-
-  toDOM(): HTMLElement {
-    const table = document.createElement("table");
-    table.className = "sd-table-widget";
-    table.dataset.sdRawMarkdown = this.rawMarkdown;
-    table.addEventListener("copy", (event) => {
-      if (!event.clipboardData) return;
-
-      event.clipboardData.setData("text/plain", this.rawMarkdown);
-      event.preventDefault();
-    });
-
-    if (this.headers.length > 0) {
-      const thead = table.appendChild(document.createElement("thead"));
-      const tr = thead.appendChild(document.createElement("tr"));
-      this.appendSourceRow(tr, this.headers, "th");
-    }
-
-    if (this.delimiters.length > 0 || this.rows.length > 0) {
-      const tbody = table.appendChild(document.createElement("tbody"));
-      if (this.delimiters.length > 0) {
-        const tr = tbody.appendChild(document.createElement("tr"));
-        tr.className = "sd-table-delimiter-row";
-        this.appendSourceRow(
-          tr,
-          this.delimiters,
-          "td",
-          "sd-table-delimiter-cell"
+  if (cursor.firstChild()) {
+    do {
+      if (cursor.name === "TableHeader") {
+        cells.push(...tableRowCellRanges(cursor.from, cursor.to, doc, "header"));
+      } else if (cursor.name === "TableDelimiter") {
+        cells.push(
+          ...tableRowCellRanges(cursor.from, cursor.to, doc, "delimiter")
         );
+      } else if (cursor.name === "TableRow") {
+        cells.push(...tableRowCellRanges(cursor.from, cursor.to, doc, "body"));
       }
-      for (const row of this.rows) {
-        const tr = tbody.appendChild(document.createElement("tr"));
-        this.appendSourceRow(tr, row, "td");
-      }
-    }
-
-    return table;
+    } while (cursor.nextSibling());
   }
 
-  eq(other: WidgetType): boolean {
-    if (!(other instanceof TableWidget)) return false;
-    return (
-      JSON.stringify(this.headers) === JSON.stringify(other.headers) &&
-      JSON.stringify(this.delimiters) ===
-        JSON.stringify(other.delimiters) &&
-      JSON.stringify(this.rows) === JSON.stringify(other.rows) &&
-      this.rawMarkdown === other.rawMarkdown
+  for (const cell of cells) {
+    widths[cell.column] = Math.max(
+      widths[cell.column] ?? 0,
+      tableCellWidth(cell.text)
     );
   }
+
+  return { cells, widths, lineStarts };
 }
 
-function closestTableWidget(target: EventTarget | null): HTMLElement | null {
-  if (!(target instanceof Node)) return null;
+function tableCellDecoration(cell: TableCellRange, width: number): Decoration {
+  const classes = ["sd-table-cell"];
+  if (cell.kind === "header") classes.push("sd-table-header-cell");
+  if (cell.kind === "delimiter") classes.push("sd-table-delimiter-cell");
 
-  const element =
-    target instanceof Element ? target : target.parentElement;
-  return element?.closest<HTMLElement>(".sd-table-widget") ?? null;
+  return Decoration.mark({
+    class: classes.join(" "),
+    attributes: {
+      style: `display: inline-block; min-width: ${width}ch;`,
+    },
+  });
 }
-
-function rawMarkdownForCopy(
-  event: ClipboardEvent,
-  view: EditorView
-): string | null {
-  const selection = view.state.selection.main;
-  if (!selection.empty) {
-    return view.state.sliceDoc(selection.from, selection.to);
-  }
-
-  return closestTableWidget(event.target)?.dataset.sdRawMarkdown ?? null;
-}
-
-export const markdownCopyExtension = EditorView.domEventHandlers({
-  copy(event, view) {
-    const rawMarkdown = rawMarkdownForCopy(event, view);
-    if (!rawMarkdown || !event.clipboardData) return false;
-
-    event.clipboardData.setData("text/plain", rawMarkdown);
-    event.preventDefault();
-    return true;
-  },
-});
 
 function buildDecorations(state: EditorState): DecorationSet {
-  const builder = new RangeSetBuilder<Decoration>();
   const marks: Array<{ from: number; to: number; dec: Decoration }> = [];
 
   syntaxTree(state)
     .cursor()
     .iterate((node) => {
       if (node.name === "Table") {
-        const { headers, delimiters, rows } = parseTable(node, state.doc);
-        const rawMarkdown = state.doc.sliceString(node.from, node.to);
-        marks.push({
-          from: node.from,
-          to: node.to,
-          dec: Decoration.replace({
-            widget: new TableWidget(
-              headers,
-              delimiters,
-              rows,
-              rawMarkdown
-            ),
-          }),
-        });
-        return false; // skip children — widget handles the entire table
+        const layout = parseTableLayout(node, state.doc);
+        for (const lineStart of layout.lineStarts) {
+          marks.push({
+            from: lineStart,
+            to: lineStart,
+            dec: Decoration.line({ class: "sd-table-line" }),
+          });
+        }
+        for (const cell of layout.cells) {
+          marks.push({
+            from: cell.from,
+            to: cell.to,
+            dec: tableCellDecoration(cell, layout.widths[cell.column] ?? 3),
+          });
+        }
+        return false; // table children are handled as source-preserving marks
       }
 
       // Code block card: add line decorations for block-level background
@@ -276,27 +231,13 @@ function buildDecorations(state: EditorState): DecorationSet {
       }
     });
 
-  // RangeSetBuilder requires ascending from, then by startSide (line decs have
-  // startSide=-1 and must precede marks at the same position), then descending to
-  // (outer mark before inner mark).
-  marks.sort((a, b) => {
-    if (a.from !== b.from) return a.from - b.from;
-    // Line decorations (from === to, startSide=-1) come before marks at the same pos.
-    const aIsLine = a.from === a.to;
-    const bIsLine = b.from === b.to;
-    if (aIsLine !== bIsLine) return aIsLine ? -1 : 1;
-    return b.to - a.to; // outer mark (larger to) before inner
-  });
-
-  for (const { from, to, dec } of marks) {
-    builder.add(from, to, dec);
-  }
-
-  return builder.finish();
+  return Decoration.set(
+    marks.map(({ from, to, dec }) => dec.range(from, to)),
+    true
+  );
 }
 
-// StateField is required for Decoration.replace that spans line breaks (multi-line).
-// ViewPlugin cannot provide such decorations per CM6 constraints.
+// StateField keeps semantic decorations derived from the current syntax tree.
 export const markdownDecorationsExtension = StateField.define<DecorationSet>({
   create(state) {
     return buildDecorations(state);
@@ -387,33 +328,20 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-hr": {
     opacity: "0.4",
   },
-  ".sd-table-widget": {
-    borderCollapse: "collapse",
-    width: "100%",
-    margin: "6px 0",
-    fontSize: "0.9em",
-  },
-  ".sd-table-widget th, .sd-table-widget td": {
-    border: `1px solid var(--sd-table-border, #e5e5e5)`,
-    padding: `var(--sd-table-cell-pad, 5px 12px)`,
-    textAlign: "left",
-    verticalAlign: "top",
-  },
-  ".sd-table-widget th": {
-    background: `var(--sd-table-header-bg, oklch(0.96 0 0))`,
-    fontWeight: `var(--sd-table-header-weight, ${markdownStyleDefaults.tableHeaderWeight})`,
-  },
-  ".sd-table-widget .sd-table-pipe, .sd-table-widget .sd-table-delimiter-cell": {
-    color: `var(--sd-table-delimiter-color, ${markdownStyleDefaults.tableDelimiterColor})`,
+  ".cm-line.sd-table-line": {
     fontFamily:
       "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
   },
-  ".sd-table-widget .sd-table-pipe": {
-    width: "1%",
-    padding: "var(--sd-table-pipe-pad, 5px 4px)",
-    textAlign: "center",
+  ".sd-table-cell": {
+    boxSizing: "border-box",
+    padding: "0 0.6ch",
   },
-  ".sd-table-widget tbody tr:nth-child(even) td": {
-    background: `var(--sd-table-row-alt-bg, oklch(0.99 0 0))`,
+  ".sd-table-header-cell": {
+    fontWeight: `var(--sd-table-header-weight, ${markdownStyleDefaults.tableHeaderWeight})`,
+  },
+  ".sd-table-delimiter-cell": {
+    color: `var(--sd-table-delimiter-color, ${markdownStyleDefaults.tableDelimiterColor})`,
+    fontFamily:
+      "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
   },
 });
