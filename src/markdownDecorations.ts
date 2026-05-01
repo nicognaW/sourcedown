@@ -68,15 +68,26 @@ const decs: Record<string, Decoration> = {
 /** Parsed cell data extracted from the lezer syntax tree. */
 interface TableData {
   headers: string[];
+  delimiters: string[];
   rows: string[][];
+}
+
+function splitPipeRow(row: string): string[] {
+  return row
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((cell) => cell.trim());
 }
 
 function parseTable(tableNode: SyntaxNodeRef, doc: Text): TableData {
   const headers: string[] = [];
+  let delimiters: string[] = [];
   const rows: string[][] = [];
 
   const cursor = tableNode.node.cursor();
-  if (!cursor.firstChild()) return { headers, rows };
+  if (!cursor.firstChild()) return { headers, delimiters, rows };
 
   do {
     if (cursor.name === "TableHeader") {
@@ -88,6 +99,8 @@ function parseTable(tableNode: SyntaxNodeRef, doc: Text): TableData {
           }
         } while (hCursor.nextSibling());
       }
+    } else if (cursor.name === "TableDelimiter") {
+      delimiters = splitPipeRow(doc.sliceString(cursor.from, cursor.to));
     } else if (cursor.name === "TableRow") {
       const cells: string[] = [];
       const rCursor = cursor.node.cursor();
@@ -100,20 +113,41 @@ function parseTable(tableNode: SyntaxNodeRef, doc: Text): TableData {
       }
       rows.push(cells);
     }
-    // TableDelimiter row (|---|---| alignment row) is skipped
   } while (cursor.nextSibling());
 
-  return { headers, rows };
+  return { headers, delimiters, rows };
 }
 
 /** Widget that renders a GFM table as a proper HTML <table> element. */
 class TableWidget extends WidgetType {
   constructor(
     private readonly headers: string[],
+    private readonly delimiters: string[],
     private readonly rows: string[][],
     private readonly rawMarkdown: string
   ) {
     super();
+  }
+
+  private appendPipe(row: HTMLTableRowElement): void {
+    const pipe = row.appendChild(document.createElement("td"));
+    pipe.className = "sd-table-pipe";
+    pipe.textContent = "|";
+  }
+
+  private appendSourceRow(
+    row: HTMLTableRowElement,
+    cells: string[],
+    tagName: "th" | "td",
+    className?: string
+  ): void {
+    this.appendPipe(row);
+    for (const cell of cells) {
+      const td = row.appendChild(document.createElement(tagName));
+      if (className) td.className = className;
+      td.textContent = cell;
+      this.appendPipe(row);
+    }
   }
 
   toDOM(): HTMLElement {
@@ -130,20 +164,24 @@ class TableWidget extends WidgetType {
     if (this.headers.length > 0) {
       const thead = table.appendChild(document.createElement("thead"));
       const tr = thead.appendChild(document.createElement("tr"));
-      for (const cell of this.headers) {
-        const th = tr.appendChild(document.createElement("th"));
-        th.textContent = cell;
-      }
+      this.appendSourceRow(tr, this.headers, "th");
     }
 
-    if (this.rows.length > 0) {
+    if (this.delimiters.length > 0 || this.rows.length > 0) {
       const tbody = table.appendChild(document.createElement("tbody"));
+      if (this.delimiters.length > 0) {
+        const tr = tbody.appendChild(document.createElement("tr"));
+        tr.className = "sd-table-delimiter-row";
+        this.appendSourceRow(
+          tr,
+          this.delimiters,
+          "td",
+          "sd-table-delimiter-cell"
+        );
+      }
       for (const row of this.rows) {
         const tr = tbody.appendChild(document.createElement("tr"));
-        for (const cell of row) {
-          const td = tr.appendChild(document.createElement("td"));
-          td.textContent = cell;
-        }
+        this.appendSourceRow(tr, row, "td");
       }
     }
 
@@ -154,6 +192,8 @@ class TableWidget extends WidgetType {
     if (!(other instanceof TableWidget)) return false;
     return (
       JSON.stringify(this.headers) === JSON.stringify(other.headers) &&
+      JSON.stringify(this.delimiters) ===
+        JSON.stringify(other.delimiters) &&
       JSON.stringify(this.rows) === JSON.stringify(other.rows) &&
       this.rawMarkdown === other.rawMarkdown
     );
@@ -199,13 +239,18 @@ function buildDecorations(state: EditorState): DecorationSet {
     .cursor()
     .iterate((node) => {
       if (node.name === "Table") {
-        const { headers, rows } = parseTable(node, state.doc);
+        const { headers, delimiters, rows } = parseTable(node, state.doc);
         const rawMarkdown = state.doc.sliceString(node.from, node.to);
         marks.push({
           from: node.from,
           to: node.to,
           dec: Decoration.replace({
-            widget: new TableWidget(headers, rows, rawMarkdown),
+            widget: new TableWidget(
+              headers,
+              delimiters,
+              rows,
+              rawMarkdown
+            ),
           }),
         });
         return false; // skip children — widget handles the entire table
@@ -323,6 +368,16 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-table-widget th": {
     background: `var(--sd-table-header-bg, oklch(0.96 0 0))`,
     fontWeight: `var(--sd-table-header-weight, ${markdownStyleDefaults.tableHeaderWeight})`,
+  },
+  ".sd-table-widget .sd-table-pipe, .sd-table-widget .sd-table-delimiter-cell": {
+    color: `var(--sd-table-delimiter-color, ${markdownStyleDefaults.tableDelimiterColor})`,
+    fontFamily:
+      "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
+  },
+  ".sd-table-widget .sd-table-pipe": {
+    width: "1%",
+    padding: "var(--sd-table-pipe-pad, 5px 4px)",
+    textAlign: "center",
   },
   ".sd-table-widget tbody tr:nth-child(even) td": {
     background: `var(--sd-table-row-alt-bg, oklch(0.99 0 0))`,
