@@ -23,10 +23,15 @@ export const markdownStyleDefaults = {
   h1LineHeight: "2.25rem",
   h2LineHeight: "2rem",
   h3LineHeight: "1.75rem",
+  // inline code — streamdown bg-muted (oklch) + text-sm (rem)
+  inlineCodeBg: "oklch(0.97 0 0)",
+  inlineCodeSize: "0.875rem",
   // link — streamdown's --primary oklch value
   linkColor: "oklch(57.61% 0.2508 258.23)",
   linkUnderline: "oklch(57.61% 0.2508 258.23 / 0.4)",
+  // blockquote — muted-foreground, border at 30% opacity
   blockquoteColor: "#737373",
+  blockquoteBorder: "4px solid rgb(115 115 115 / 0.3)",
 } as const;
 
 const decs: Record<string, Decoration> = {
@@ -124,10 +129,10 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-inline-code": {
     fontFamily:
       "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
-    backgroundColor: "var(--sd-inline-code-bg, rgba(0,0,0,0.06))",
-    borderRadius: "6px",
+    backgroundColor: `var(--sd-inline-code-bg, ${markdownStyleDefaults.inlineCodeBg})`,
+    borderRadius: "0.25rem",
     padding: "2px 6px",
-    fontSize: "0.875em",
+    fontSize: `var(--sd-inline-code-size, ${markdownStyleDefaults.inlineCodeSize})`,
   },
   ".sd-code-block": {
     fontFamily:
@@ -143,9 +148,8 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-blockquote": {
     color: `var(--sd-blockquote-color, ${markdownStyleDefaults.blockquoteColor})`,
     fontStyle: "italic",
-    borderLeft: "4px solid currentColor",
+    borderLeft: `var(--sd-blockquote-border, ${markdownStyleDefaults.blockquoteBorder})`,
     paddingLeft: "1rem",
-    opacity: "0.85",
   },
   ".sd-hr": {
     opacity: "0.4",

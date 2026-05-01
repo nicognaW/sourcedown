@@ -147,6 +147,14 @@ describe("markdown semantic decorations", () => {
       expect(markdownStyleDefaults.h5Size).toBe("1rem");
       expect(markdownStyleDefaults.h6Size).toBe("0.875rem");
     });
+
+    it("inline code size is 0.875rem not em (rem, like text-sm)", () => {
+      expect(markdownStyleDefaults.inlineCodeSize).toBe("0.875rem");
+    });
+
+    it("inline code bg is oklch muted token not rgba", () => {
+      expect(markdownStyleDefaults.inlineCodeBg).toBe("oklch(0.97 0 0)");
+    });
   });
 
   it("does not crash on incomplete streaming markdown", async () => {
