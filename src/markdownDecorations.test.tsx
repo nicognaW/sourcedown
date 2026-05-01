@@ -169,6 +169,91 @@ describe("markdown semantic decorations", () => {
     });
   });
 
+  describe("GFM table decorations", () => {
+    const tableMarkdown = `| A | B |\n|---|---|\n| 1 | 2 |`;
+
+    it("marks table ranges with sd-table", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      await waitFor(() => {
+        expect(dec(container, "sd-table")).not.toBeNull();
+      });
+    });
+
+    it("marks header row with sd-table-header", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      await waitFor(() => {
+        expect(dec(container, "sd-table-header")).not.toBeNull();
+      });
+
+      expect(decText(container, "sd-table-header")).toContain("A");
+      expect(decText(container, "sd-table-header")).toContain("B");
+    });
+
+    it("marks delimiter pipes and dashes row with sd-table-delimiter", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      await waitFor(() => {
+        expect(dec(container, "sd-table-delimiter")).not.toBeNull();
+      });
+
+      const delimText = decText(container, "sd-table-delimiter");
+      expect(delimText).toContain("|");
+    });
+
+    it("marks data rows with sd-table-row", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      await waitFor(() => {
+        expect(dec(container, "sd-table-row")).not.toBeNull();
+      });
+
+      expect(decText(container, "sd-table-row")).toContain("1");
+      expect(decText(container, "sd-table-row")).toContain("2");
+    });
+
+    it("marks cells with sd-table-cell", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      await waitFor(() => {
+        expect(dec(container, "sd-table-cell")).not.toBeNull();
+      });
+    });
+
+    it("preserves source-as-is: | pipes and --- are visible in rendered text", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".cm-content")).toBeTruthy();
+      });
+
+      const text = container.querySelector(".cm-content")?.textContent ?? "";
+      expect(text).toContain("|");
+      expect(text).toContain("---");
+    });
+
+    it("does not crash on incomplete streaming table", async () => {
+      const { container, unmount } = render(
+        <Sourcedown markdown="| A |" />
+      );
+
+      await waitFor(() => {
+        expect(container.querySelector(".cm-content")).toBeTruthy();
+      });
+
+      unmount();
+    });
+
+    it("tableHeaderWeight default is semibold 600", () => {
+      expect(markdownStyleDefaults.tableHeaderWeight).toBe("600");
+    });
+
+    it("tableDelimiterColor default is muted gray", () => {
+      expect(markdownStyleDefaults.tableDelimiterColor).toBe("#9ca3af");
+    });
+  });
+
   it("does not crash on incomplete streaming markdown", async () => {
     const incompletes = [
       "**bold",
