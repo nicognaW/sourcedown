@@ -15,22 +15,19 @@ describe("sourcedown site", () => {
   it("renders the landing hero and source-mode rationale", () => {
     render(<App />);
 
-    expect(
-      screen.getByRole("heading", {
-        name: "Source-Mode Markdown for Streaming AI Output",
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /Keep every markdown character visible and copyable/
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Why Source Mode Markdown" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/WYSIWYG renderers hide syntax/i)
-    ).toBeInTheDocument();
+    const hero = screen.getByRole("region", { name: "Hero" });
+    expect(sourceText(hero)).toContain(
+      "# Source-Mode Markdown for Streaming AI Output"
+    );
+    expect(sourceText(hero)).toContain(
+      "Keep every markdown character visible and copyable"
+    );
+
+    const rationale = screen.getByRole("region", {
+      name: "Why Source Mode Markdown",
+    });
+    expect(sourceText(rationale)).toContain("# Why Source Mode Markdown");
+    expect(sourceText(rationale)).toContain("WYSIWYG renderers hide syntax");
   });
 
   it("uses product-site copy casing and no status dot in the hero demo", () => {
