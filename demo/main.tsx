@@ -29,6 +29,16 @@ Works with **React 18 / 19**, Zero config. No hidden characters, no replaced syn
 
 const autoplayWords = autoplaySample.match(/\S+\s*/g) ?? [];
 
+const heroMarkdown = `# Source-Mode Markdown for Streaming AI Output
+
+Keep every markdown character visible and copyable, while headings, links, code, and lists still read like rendered markdown.
+`;
+
+const whySourceModeMarkdown = `# Why Source Mode Markdown
+
+WYSIWYG renderers hide syntax, so markdown-literate users lose sight of what was generated and what will copy. Plain markdown source is trustworthy, but noisy. Sourcedown keeps the source as the document and adds just enough semantic styling to make streamed output comfortable to read.
+`;
+
 function AutoplayDemo({ className }: { className?: string }) {
   const [markdown, setMarkdown] = useState("");
 
@@ -107,28 +117,18 @@ export function App() {
       </header>
 
       <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow">Source-as-Is Renderer</p>
-          <h1>Source-Mode Markdown for Streaming AI Output</h1>
-          <p className="hero-subtitle">
-            Keep every markdown character visible and copyable, while
-            headings, links, code, and lists still read like rendered markdown
-          </p>
+        <div className="hero-copy" role="region" aria-label="Hero">
+          <Sourcedown
+            className="site-markdown site-markdown--hero"
+            markdown={heroMarkdown}
+          />
         </div>
 
         <AutoplayDemo className="autoplay-demo--hero" />
       </section>
 
-      <section className="rationale" aria-labelledby="why-source-mode">
-        <p className="eyebrow">Why Source Mode</p>
-        <h2 id="why-source-mode">Why Source Mode Markdown</h2>
-        <p>
-          WYSIWYG renderers hide syntax, so markdown-literate users lose sight
-          of what was generated and what will copy. Plain markdown source is
-          trustworthy, but noisy. Sourcedown keeps the source as the document
-          and adds just enough semantic styling to make streamed output
-          comfortable to read.
-        </p>
+      <section className="rationale" aria-label="Why Source Mode Markdown">
+        <Sourcedown className="site-markdown" markdown={whySourceModeMarkdown} />
       </section>
 
       <section className="feature-grid" id="features" aria-label="Features">

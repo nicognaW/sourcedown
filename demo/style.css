@@ -89,6 +89,35 @@ body {
   max-width: 660px;
 }
 
+.site-markdown {
+  --sd-font-size: 16px;
+  --sd-line-height: 1.7;
+  color: #4b5563;
+}
+
+.site-markdown--hero {
+  --sd-font-size: 19px;
+  --sd-line-height: 1.55;
+}
+
+.site-markdown--hero .sd-h1 {
+  display: block;
+  max-width: 780px;
+  margin-bottom: 24px;
+  color: #050505;
+  font-size: 76px;
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+.site-markdown:not(.site-markdown--hero) .sd-h1 {
+  display: block;
+  margin-bottom: 14px;
+  color: #111111;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
 .eyebrow {
   margin: 0 0 14px;
   color: #737373;
