@@ -1,5 +1,5 @@
 import { render, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { markdownStyleDefaults } from "./markdownDecorations";
 import { Sourcedown } from "./Sourcedown";
 
@@ -224,6 +224,30 @@ describe("markdown semantic decorations", () => {
       expect(allCells).toContain("B");
       expect(allCells).toContain("1");
       expect(allCells).toContain("2");
+    });
+
+    it("copies raw markdown when copying from the table widget", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      const table = await waitFor(() => {
+        const el = container.querySelector(".sd-table-widget");
+        expect(el).not.toBeNull();
+        return el as HTMLElement;
+      });
+
+      const clipboardData = { setData: vi.fn() };
+      const event = new Event("copy", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: clipboardData,
+      });
+
+      table.dispatchEvent(event);
+
+      expect(clipboardData.setData).toHaveBeenCalledWith(
+        "text/plain",
+        tableMarkdown
+      );
+      expect(event.defaultPrevented).toBe(true);
     });
 
     it("does not crash on incomplete streaming table", async () => {
