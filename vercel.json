@@ -1,6 +1,6 @@
 {
   "buildCommand": "vite build",
-  "outputDirectory": "dist",
+  "outputDirectory": "demo-dist",
   "installCommand": "bun install",
   "framework": "vite"
 }
