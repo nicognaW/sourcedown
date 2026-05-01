@@ -255,16 +255,38 @@ function buildDecorations(state: EditorState): DecorationSet {
         });
         return false; // skip children — widget handles the entire table
       }
+
+      // Code block card: add line decorations for block-level background
+      if (node.name === "FencedCode" || node.name === "CodeBlock") {
+        const startLine = state.doc.lineAt(node.from);
+        const endLine = state.doc.lineAt(Math.max(node.from, node.to - 1));
+        for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
+          const line = state.doc.line(lineNum);
+          const classes = ["sd-code-line"];
+          if (lineNum === startLine.number) classes.push("sd-code-line-first");
+          if (lineNum === endLine.number) classes.push("sd-code-line-last");
+          marks.push({ from: line.from, to: line.from, dec: Decoration.line({ class: classes.join(" ") }) });
+        }
+        // fall through to add sd-code-block mark for font/size
+      }
+
       const dec = decs[node.name];
       if (dec) {
         marks.push({ from: node.from, to: node.to, dec });
       }
     });
 
-  // RangeSetBuilder requires ascending from, then descending to (outer before inner)
-  marks.sort((a, b) =>
-    a.from !== b.from ? a.from - b.from : b.to - a.to
-  );
+  // RangeSetBuilder requires ascending from, then by startSide (line decs have
+  // startSide=-1 and must precede marks at the same position), then descending to
+  // (outer mark before inner mark).
+  marks.sort((a, b) => {
+    if (a.from !== b.from) return a.from - b.from;
+    // Line decorations (from === to, startSide=-1) come before marks at the same pos.
+    const aIsLine = a.from === a.to;
+    const bIsLine = b.from === b.to;
+    if (aIsLine !== bIsLine) return aIsLine ? -1 : 1;
+    return b.to - a.to; // outer mark (larger to) before inner
+  });
 
   for (const { from, to, dec } of marks) {
     builder.add(from, to, dec);
@@ -332,10 +354,22 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
     fontFamily:
       "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
     fontSize: "0.875em",
-    background: `var(--sd-code-bg, ${markdownStyleDefaults.codeBlockBg})`,
-    borderRadius: "0.25rem",
   },
-  "&dark .sd-code-block": {
+  ".cm-line.sd-code-line": {
+    background: `var(--sd-code-bg, ${markdownStyleDefaults.codeBlockBg})`,
+    padding: "0 12px",
+  },
+  ".cm-line.sd-code-line-first": {
+    borderTopLeftRadius: "6px",
+    borderTopRightRadius: "6px",
+    paddingTop: "6px",
+  },
+  ".cm-line.sd-code-line-last": {
+    borderBottomLeftRadius: "6px",
+    borderBottomRightRadius: "6px",
+    paddingBottom: "6px",
+  },
+  "&dark .cm-line.sd-code-line": {
     background: `var(--sd-code-bg, ${markdownStyleDefaults.codeBlockBgDark})`,
   },
   ".sd-link": {
