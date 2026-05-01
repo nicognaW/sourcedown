@@ -30,9 +30,11 @@ export const markdownStyleDefaults = {
   // table — header semibold, delimiter pipes muted
   tableHeaderWeight: "600",
   tableDelimiterColor: "#9ca3af",
-  // fenced code block background — light and dark defaults
-  codeBlockBg: "oklch(0.95 0 0)",
-  codeBlockBgDark: "oklch(0.22 0 0)",
+  // fenced code block card — background + border (streamdown-aligned)
+  codeBlockBg: "oklch(0.97 0 0)",
+  codeBlockBgDark: "oklch(0.20 0 0)",
+  codeBlockBorder: "oklch(0.922 0 0)",
+  codeBlockBorderDark: "oklch(1 0 0 / 10%)",
 } as const;
 
 const decs: Record<string, Decoration> = {
@@ -369,20 +371,32 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   },
   ".cm-line.sd-code-line": {
     background: `var(--sd-code-bg, ${markdownStyleDefaults.codeBlockBg})`,
-    padding: "0 12px",
+    padding: "0 16px",
+    borderLeft: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorder})`,
+    borderRight: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorder})`,
   },
   ".cm-line.sd-code-line-first": {
+    borderTop: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorder})`,
     borderTopLeftRadius: "6px",
     borderTopRightRadius: "6px",
-    paddingTop: "6px",
+    paddingTop: "12px",
   },
   ".cm-line.sd-code-line-last": {
+    borderBottom: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorder})`,
     borderBottomLeftRadius: "6px",
     borderBottomRightRadius: "6px",
-    paddingBottom: "6px",
+    paddingBottom: "12px",
   },
   "&dark .cm-line.sd-code-line": {
     background: `var(--sd-code-bg, ${markdownStyleDefaults.codeBlockBgDark})`,
+    borderLeft: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorderDark})`,
+    borderRight: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorderDark})`,
+  },
+  "&dark .cm-line.sd-code-line-first": {
+    borderTop: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorderDark})`,
+  },
+  "&dark .cm-line.sd-code-line-last": {
+    borderBottom: `1px solid var(--sd-code-border, ${markdownStyleDefaults.codeBlockBorderDark})`,
   },
   ".sd-link": {
     color: `var(--sd-link-color, ${markdownStyleDefaults.linkColor})`,
