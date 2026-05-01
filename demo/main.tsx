@@ -123,6 +123,61 @@ ${fence}css
 ${fence}
 `;
 
+const featuresMarkdown = `# Features
+
+- **Source-as-Is** — syntax stays visible, selectable, and copyable as raw markdown.
+- **Streaming First** — append-only updates go into the CodeMirror buffer incrementally.
+- **Clickable Links** — full markdown link ranges open links without replacing text.
+- **CM6 Highlighting** — common fenced code languages get native CodeMirror highlighting.
+`;
+
+const apiMarkdown = `# API
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| \`markdown\` | \`string\` | — | Markdown source string |
+| \`className\` | \`string\` | \`undefined\` | Extra class on the root element |
+| \`autoScroll\` | \`boolean\` | \`true\` | Pin to bottom while streaming when already at bottom |
+| \`onLinkClick\` | \`(event, href) => void\` | \`undefined\` | Called on link click; default opens in new tab |
+
+## Supported Syntax
+
+All markers stay visible. Semantic styling is applied on top.
+
+| Syntax | Example |
+| --- | --- |
+| Headings | \`# H1\` through \`###### H6\` |
+| Bold | \`**bold**\` |
+| Italic | \`_italic_\` |
+| Inline code | \`code\` |
+| Fenced code | three backticks plus a language info string |
+| Links | \`[text](url)\` |
+| Blockquotes | \`> quote\` |
+| Lists | \`- item\` / \`1. item\` |
+| Horizontal rules | \`---\` |
+
+## Code Highlighting Languages
+
+CM6-native highlighting for: \`js\` / \`ts\` / \`tsx\` / \`jsx\` / \`json\` / \`css\` / \`html\` / \`bash\` / \`markdown\`.
+
+Unknown languages fall back to plaintext.
+`;
+
+const roadmapMarkdown = `# Roadmap
+
+Version 1 ships a read-only renderer. Planned for later versions:
+
+- **Editable prompt input** — \`<SourcedownInput />\` with IME, undo/redo, and placeholder
+- **Shiki highlighting** — richer themes, VS Code-style colors, streaming tokenizer
+- **shadcn registry** — copy-paste component for shadcn projects
+- **Table styling** — pipe table visual rendering with source intact
+- **Block widgets** — optional Mermaid / math / image previews that append below source
+
+SSR fallback, multi-framework support, and server-rendered docs are also deferred.
+`;
+
 function AutoplayDemo({ className }: { className?: string }) {
   const [markdown, setMarkdown] = useState("");
 
@@ -215,23 +270,11 @@ export function App() {
         <Sourcedown className="site-markdown" markdown={whySourceModeMarkdown} />
       </section>
 
-      <section className="feature-grid" id="features" aria-label="Features">
-        <article>
-          <h3>Source-as-Is</h3>
-          <p>Syntax stays visible, selectable, and copyable as raw markdown.</p>
-        </article>
-        <article>
-          <h3>Streaming First</h3>
-          <p>Append-only updates go into the CodeMirror buffer incrementally.</p>
-        </article>
-        <article>
-          <h3>Clickable Links</h3>
-          <p>Full markdown link ranges can open links without replacing text.</p>
-        </article>
-        <article>
-          <h3>CM6 Highlighting</h3>
-          <p>Common fenced code languages get native CodeMirror highlighting.</p>
-        </article>
+      <section className="compact-section" id="features" aria-label="Features">
+        <Sourcedown
+          className="site-markdown site-markdown--features"
+          markdown={featuresMarkdown}
+        />
       </section>
 
       {/* ── docs ───────────────────────────────────────────────────── */}
@@ -243,122 +286,20 @@ export function App() {
         />
       </section>
 
-      <section className="compact-section" id="api">
-        <p className="eyebrow">API</p>
-        <h2>Props</h2>
-        <table className="docs-table">
-          <thead>
-            <tr>
-              <th>Prop</th>
-              <th>Type</th>
-              <th>Default</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>markdown</code></td>
-              <td><code>string</code></td>
-              <td>—</td>
-              <td>Markdown source string</td>
-            </tr>
-            <tr>
-              <td><code>className</code></td>
-              <td><code>string</code></td>
-              <td><code>undefined</code></td>
-              <td>Extra class on the root element</td>
-            </tr>
-            <tr>
-              <td><code>autoScroll</code></td>
-              <td><code>boolean</code></td>
-              <td><code>true</code></td>
-              <td>Pin to bottom while streaming when already at bottom</td>
-            </tr>
-            <tr>
-              <td><code>onLinkClick</code></td>
-              <td><code>{"(e, href) => void"}</code></td>
-              <td><code>undefined</code></td>
-              <td>Called on link click; default opens in new tab</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <h2 className="docs-h2">Supported Syntax</h2>
-        <p className="docs-p">
-          All markers stay visible. Semantic styling is applied on top.
-        </p>
-        <table className="docs-table">
-          <thead>
-            <tr>
-              <th>Syntax</th>
-              <th>Example</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["Headings", "# H1 through ###### H6"],
-              ["Bold", "**bold**"],
-              ["Italic", "_italic_"],
-              ["Inline code", "`code`"],
-              ["Fenced code", "```ts"],
-              ["Links", "[text](url)"],
-              ["Blockquotes", "> quote"],
-              ["Lists", "- item / 1. item"],
-              ["Horizontal rules", "---"],
-            ].map(([syntax, example]) => (
-              <tr key={syntax}>
-                <td>{syntax}</td>
-                <td><code>{example}</code></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <h2 className="docs-h2">Code Highlighting Languages</h2>
-        <p className="docs-p">
-          CM6-native highlighting for:{" "}
-          <code>js</code> / <code>ts</code> / <code>tsx</code> /{" "}
-          <code>jsx</code> / <code>json</code> / <code>css</code> /{" "}
-          <code>html</code> / <code>bash</code> / <code>markdown</code>.
-          Unknown languages fall back to plaintext.
-        </p>
-
+      <section className="compact-section" id="api" aria-label="API">
+        <Sourcedown
+          className="site-markdown site-markdown--api"
+          markdown={apiMarkdown}
+        />
       </section>
 
       {/* ── roadmap ────────────────────────────────────────────────── */}
 
-      <section className="compact-section" id="roadmap">
-        <p className="eyebrow">Roadmap</p>
-        <h2>What&rsquo;s Next</h2>
-        <p className="docs-p">
-          Version 1 ships a read-only renderer. Planned for later versions:
-        </p>
-        <ul className="docs-list">
-          <li>
-            <strong>Editable prompt input</strong> — <code>{"<SourcedownInput />"}</code>{" "}
-            with IME, undo/redo, and placeholder
-          </li>
-          <li>
-            <strong>Shiki highlighting</strong> — richer themes, VS Code-style
-            colors, streaming tokenizer
-          </li>
-          <li>
-            <strong>shadcn registry</strong> — copy-paste component for shadcn
-            projects
-          </li>
-          <li>
-            <strong>Table styling</strong> — pipe table visual rendering with
-            source intact
-          </li>
-          <li>
-            <strong>Block widgets</strong> — optional Mermaid / math / image
-            previews that append below source
-          </li>
-        </ul>
-        <p className="docs-p docs-p--muted">
-          SSR fallback, multi-framework support, and server-rendered docs are
-          also deferred.
-        </p>
+      <section className="compact-section" id="roadmap" aria-label="Roadmap">
+        <Sourcedown
+          className="site-markdown site-markdown--roadmap"
+          markdown={roadmapMarkdown}
+        />
       </section>
     </main>
   );
