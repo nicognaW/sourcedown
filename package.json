@@ -7,7 +7,7 @@
   "homepage": "https://sourcedown.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nicognaW/sourcedown.git"
+    "url": "git+https://github.com/nicognaW/sourcedown.git"
   },
   "bugs": {
     "url": "https://github.com/nicognaW/sourcedown/issues"
