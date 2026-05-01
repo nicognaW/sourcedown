@@ -12,8 +12,20 @@ import {
 export const markdownStyleDefaults = {
   headingWeight: "600",
   strongWeight: "600",
-  linkColor: "#6366f1",
-  linkUnderline: "rgba(99,102,241,0.4)",
+  // heading sizes — rem matches Tailwind text-3xl/2xl/xl/lg/base/sm
+  h1Size: "1.875rem",
+  h2Size: "1.5rem",
+  h3Size: "1.25rem",
+  h4Size: "1.125rem",
+  h5Size: "1rem",
+  h6Size: "0.875rem",
+  // heading line-heights — Tailwind defaults for those text sizes
+  h1LineHeight: "2.25rem",
+  h2LineHeight: "2rem",
+  h3LineHeight: "1.75rem",
+  // link — streamdown's --primary oklch value
+  linkColor: "oklch(57.61% 0.2508 258.23)",
+  linkUnderline: "oklch(57.61% 0.2508 258.23 / 0.4)",
   blockquoteColor: "#737373",
 } as const;
 
@@ -81,26 +93,32 @@ export const markdownDecorationsExtension = ViewPlugin.fromClass(
 
 export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-h1": {
-    fontSize: "var(--sd-h1-size, 1.875em)",
+    fontSize: `var(--sd-h1-size, ${markdownStyleDefaults.h1Size})`,
     fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
-    lineHeight: "1.3",
-    letterSpacing: "-0.025em",
+    lineHeight: `var(--sd-h1-line-height, ${markdownStyleDefaults.h1LineHeight})`,
   },
   ".sd-h2": {
-    fontSize: "var(--sd-h2-size, 1.5em)",
+    fontSize: `var(--sd-h2-size, ${markdownStyleDefaults.h2Size})`,
     fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
-    lineHeight: "1.3",
-    letterSpacing: "-0.025em",
+    lineHeight: `var(--sd-h2-line-height, ${markdownStyleDefaults.h2LineHeight})`,
   },
   ".sd-h3": {
-    fontSize: "var(--sd-h3-size, 1.25em)",
+    fontSize: `var(--sd-h3-size, ${markdownStyleDefaults.h3Size})`,
     fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
-    lineHeight: "1.3",
-    letterSpacing: "-0.025em",
+    lineHeight: `var(--sd-h3-line-height, ${markdownStyleDefaults.h3LineHeight})`,
   },
-  ".sd-h4": { fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})` },
-  ".sd-h5": { fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})` },
-  ".sd-h6": { fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})` },
+  ".sd-h4": {
+    fontSize: `var(--sd-h4-size, ${markdownStyleDefaults.h4Size})`,
+    fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
+  },
+  ".sd-h5": {
+    fontSize: `var(--sd-h5-size, ${markdownStyleDefaults.h5Size})`,
+    fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
+  },
+  ".sd-h6": {
+    fontSize: `var(--sd-h6-size, ${markdownStyleDefaults.h6Size})`,
+    fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
+  },
   ".sd-strong": { fontWeight: markdownStyleDefaults.strongWeight },
   ".sd-em": { fontStyle: "italic" },
   ".sd-inline-code": {
@@ -125,8 +143,9 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-blockquote": {
     color: `var(--sd-blockquote-color, ${markdownStyleDefaults.blockquoteColor})`,
     fontStyle: "italic",
-    borderLeft: "3px solid rgba(0,0,0,0.15)",
-    paddingLeft: "0.75em",
+    borderLeft: "4px solid currentColor",
+    paddingLeft: "1rem",
+    opacity: "0.85",
   },
   ".sd-hr": {
     opacity: "0.4",

@@ -129,10 +129,13 @@ sourcedown exposes CSS variables for customization. import your own theme by ove
   --sd-line-height: 1.65;
   --sd-selection-background: #b4d5ff;
 
-  /* headings */
-  --sd-h1-size: 1.875em;
-  --sd-h2-size: 1.5em;
-  --sd-h3-size: 1.25em;
+  /* headings — rem units, Tailwind text-3xl/2xl/xl/lg/base/sm */
+  --sd-h1-size: 1.875rem;
+  --sd-h2-size: 1.5rem;
+  --sd-h3-size: 1.25rem;
+  --sd-h4-size: 1.125rem;
+  --sd-h5-size: 1rem;
+  --sd-h6-size: 0.875rem;
   --sd-heading-weight: 600;
 
   /* code */
@@ -140,8 +143,8 @@ sourcedown exposes CSS variables for customization. import your own theme by ove
   --sd-inline-code-bg: rgba(0, 0, 0, 0.06);
 
   /* links */
-  --sd-link-color: #6366f1;
-  --sd-link-underline: rgba(99, 102, 241, 0.4);
+  --sd-link-color: oklch(57.61% 0.2508 258.23);
+  --sd-link-underline: oklch(57.61% 0.2508 258.23 / 0.4);
 
   /* blockquotes */
   --sd-blockquote-color: #737373;

@@ -284,14 +284,15 @@ return <Sourcedown markdown={markdown} />;`}</code>
   --sd-font-size: 14px;
   --sd-line-height: 1.65;
 
-  --sd-h1-size: 1.875em;
-  --sd-h2-size: 1.5em;
-  --sd-h3-size: 1.25em;
+  --sd-h1-size: 1.875rem;
+  --sd-h2-size: 1.5rem;
+  --sd-h3-size: 1.25rem;
+  --sd-h4-size: 1.125rem;
   --sd-heading-weight: 600;
   --sd-code-font: ui-monospace, monospace;
   --sd-inline-code-bg: rgba(0,0,0,0.06);
-  --sd-link-color: #6366f1;
-  --sd-link-underline: rgba(99,102,241,0.4);
+  --sd-link-color: oklch(57.61% 0.2508 258.23);
+  --sd-link-underline: oklch(57.61% 0.2508 258.23 / 0.4);
   --sd-blockquote-color: #737373;
 
   /* code syntax */

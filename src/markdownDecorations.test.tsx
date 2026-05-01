@@ -128,12 +128,24 @@ describe("markdown semantic decorations", () => {
       expect(markdownStyleDefaults.strongWeight).toBe("600");
     });
 
-    it("link color default is indigo #6366f1", () => {
-      expect(markdownStyleDefaults.linkColor).toBe("#6366f1");
+    it("link color default is oklch primary (streamdown --primary)", () => {
+      expect(markdownStyleDefaults.linkColor).toBe(
+        "oklch(57.61% 0.2508 258.23)"
+      );
     });
 
     it("blockquote color default is muted gray #737373", () => {
       expect(markdownStyleDefaults.blockquoteColor).toBe("#737373");
+    });
+
+    it("h1 size default is 1.875rem (text-3xl, rem not em)", () => {
+      expect(markdownStyleDefaults.h1Size).toBe("1.875rem");
+    });
+
+    it("h4/h5/h6 have explicit size defaults", () => {
+      expect(markdownStyleDefaults.h4Size).toBe("1.125rem");
+      expect(markdownStyleDefaults.h5Size).toBe("1rem");
+      expect(markdownStyleDefaults.h6Size).toBe("0.875rem");
     });
   });
 
