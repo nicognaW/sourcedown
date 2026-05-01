@@ -45,13 +45,13 @@ describe("sourcedown site", () => {
       vi.advanceTimersByTime(120);
     });
 
-    expect(sourceText(demo)).toContain("# live source stream");
-    expect(sourceText(demo)).not.toContain("copy remains raw markdown");
+    expect(sourceText(demo)).toContain("# sourcedown");
+    expect(sourceText(demo)).not.toContain("zero config");
 
     await act(async () => {
-      vi.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(10000);
     });
 
-    expect(sourceText(demo)).toContain("copy remains raw markdown");
+    expect(sourceText(demo)).toContain("zero config");
   });
 });

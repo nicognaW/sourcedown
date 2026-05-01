@@ -138,18 +138,11 @@ h1 {
   border-color: #bbbbbb;
 }
 
-.hero-demo,
 .feature-grid article {
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   background: rgb(255 255 255 / 0.92);
   box-shadow: 0 20px 60px rgb(0 0 0 / 0.06);
-}
-
-.hero-demo {
-  overflow: hidden;
-  min-height: 360px;
-  padding: 18px;
 }
 
 h2 {
@@ -299,6 +292,11 @@ h2 {
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   background: #ffffff;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.06);
+}
+
+.hero .autoplay-demo {
+  margin-top: 0;
 }
 
 .autoplay-demo .sourcedown {

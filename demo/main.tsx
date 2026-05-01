@@ -3,48 +3,53 @@ import { createRoot } from "react-dom/client";
 import { Sourcedown } from "../src";
 import "./style.css";
 
-const heroSample = `# sourcedown
+const autoplaySample = `# sourcedown
 
 **source-mode markdown** for streaming AI output.
 
-- every marker stays visible
+Every markdown character stays visible and copyable — \`**\`, \`#\`, \`[\`, all of it. Semantic styling is applied on top without replacing the source.
+
+- every marker stays visible and selectable
+- [links](https://example.com) are still clickable
+- copy always returns raw markdown
 - streaming appends incrementally
-- [links](https://example.com) stay clickable
 
 \`\`\`ts
 import { Sourcedown } from "sourcedown";
-import "sourcedown/style.css";
+
+function Message({ markdown }: { markdown: string }) {
+  return <Sourcedown markdown={markdown} />;
+}
 \`\`\`
-`;
 
-const autoplaySample = `# live source stream
+> streaming is naturally incremental — just append chunks to the prop.
 
-AI output can stream into sourcedown one chunk at a time.
-
-- **markdown markers stay visible**
-- [links](https://example.com) are still clickable
-- copy remains raw markdown
-
-\`\`\`ts
-setMarkdown((previous) => previous + nextChunk);
-\`\`\`
+Works with **React 18 / 19**, zero config. No hidden characters, no replaced syntax.
 `;
 
 function AutoplayDemo() {
   const [markdown, setMarkdown] = useState("");
 
   useEffect(() => {
-    setMarkdown("");
     let index = 0;
-    const interval = window.setInterval(() => {
-      index = Math.min(index + 30, autoplaySample.length);
-      setMarkdown(autoplaySample.slice(0, index));
-      if (index >= autoplaySample.length) {
-        window.clearInterval(interval);
-      }
-    }, 40);
+    let timer: ReturnType<typeof setTimeout>;
 
-    return () => window.clearInterval(interval);
+    const tick = () => {
+      index = Math.min(index + 25, autoplaySample.length);
+      setMarkdown(autoplaySample.slice(0, index));
+      if (index < autoplaySample.length) {
+        timer = setTimeout(tick, 35);
+      } else {
+        timer = setTimeout(() => {
+          index = 0;
+          setMarkdown("");
+          timer = setTimeout(tick, 35);
+        }, 3000);
+      }
+    };
+
+    timer = setTimeout(tick, 35);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -72,7 +77,6 @@ export function App() {
         <nav>
           <a href="#docs">Docs</a>
           <a href="#features">Features</a>
-          <a href="#demo">Demo</a>
           <a href="#roadmap">Roadmap</a>
         </nav>
       </header>
@@ -95,9 +99,7 @@ export function App() {
           </div>
         </div>
 
-        <div className="hero-demo" aria-label="sourcedown preview">
-          <Sourcedown markdown={heroSample} />
-        </div>
+        <AutoplayDemo />
       </section>
 
       <section className="rationale" aria-labelledby="why-source-mode">
@@ -292,18 +294,6 @@ return <Sourcedown markdown={markdown} />;`}</code>
   --sd-code-function: #8250df;
 }`}</code>
         </pre>
-      </section>
-
-      {/* ── demo ───────────────────────────────────────────────────── */}
-
-      <section className="compact-section" id="demo">
-        <p className="eyebrow">demo</p>
-        <h2>autoplay streaming demo</h2>
-        <p className="docs-p">
-          Watch source-mode markdown appear as an AI response streams in. The
-          text stays raw, styled, selectable, and copyable the whole time.
-        </p>
-        <AutoplayDemo />
       </section>
 
       {/* ── roadmap ────────────────────────────────────────────────── */}
