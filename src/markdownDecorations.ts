@@ -188,7 +188,7 @@ function displayWidth(text: string): number {
 }
 
 function tableCellWidth(text: string): number {
-  return Math.max(displayWidth(text), 3);
+  return Math.max(displayWidth(text.trim()), 3);
 }
 
 function parseTableLayout(tableNode: SyntaxNodeRef, doc: Text): TableLayout {
@@ -241,20 +241,11 @@ function collectInlineCodeRanges(
 ): Array<{ from: number; to: number }> {
   const ranges: Array<{ from: number; to: number }> = [];
   const cursor = tableNode.node.cursor();
-  if (!cursor.firstChild()) return ranges;
-
-  do {
-    if (cursor.name === "InlineCode") {
-      ranges.push({ from: cursor.from, to: cursor.to });
+  cursor.iterate((node) => {
+    if (node.name === "InlineCode") {
+      ranges.push({ from: node.from, to: node.to });
     }
-    if (cursor.firstChild()) continue;
-    while (!cursor.nextSibling()) {
-      if (!cursor.parent()) return ranges;
-      if (cursor.from === tableNode.from && cursor.to === tableNode.to) {
-        return ranges;
-      }
-    }
-  } while (true);
+  });
 
   return ranges;
 }

@@ -24,6 +24,15 @@ function extractHref(view: EditorView, pos: number): string | null {
   return null;
 }
 
+function isSafeDefaultHref(href: string): boolean {
+  try {
+    const url = new URL(href, window.location.href);
+    return ["http:", "https:", "mailto:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
 export function linkClickExtension(
   onLinkClickRef: MutableRefObject<SourcedownProps["onLinkClick"]>
 ): Extension {
@@ -46,7 +55,7 @@ export function linkClickExtension(
       const handler = onLinkClickRef.current;
       if (handler) {
         handler(event as MouseEvent, href);
-      } else {
+      } else if (isSafeDefaultHref(href)) {
         window.open(href, "_blank", "noopener,noreferrer");
       }
 

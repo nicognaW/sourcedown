@@ -48,6 +48,25 @@ describe("link click behavior", () => {
     openSpy.mockRestore();
   });
 
+  it("does not open unsafe href schemes by default", async () => {
+    const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+
+    const { container } = render(
+      <Sourcedown markdown="[text](javascript:alert(1))" />
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector(".sd-link")).toBeTruthy();
+    });
+
+    const linkSpan = container.querySelector(".sd-link")!;
+    fireEvent.click(linkSpan);
+
+    expect(openSpy).not.toHaveBeenCalled();
+
+    openSpy.mockRestore();
+  });
+
   it("link source text remains raw markdown (source-as-is invariant)", async () => {
     const { container } = render(
       <Sourcedown markdown="[text](https://example.com)" />
