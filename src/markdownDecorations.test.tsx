@@ -1,5 +1,5 @@
 import { render, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { markdownStyleDefaults } from "./markdownDecorations";
 import { Sourcedown } from "./Sourcedown";
 
@@ -11,6 +11,12 @@ function decText(container: HTMLElement, cls: string): string {
   return Array.from(container.querySelectorAll(`.${cls}`))
     .map((el) => el.textContent ?? "")
     .join("");
+}
+
+function lineTexts(container: HTMLElement): string[] {
+  return Array.from(container.querySelectorAll(".cm-line")).map(
+    (line) => line.textContent ?? ""
+  );
 }
 
 describe("markdown semantic decorations", () => {
@@ -172,95 +178,77 @@ describe("markdown semantic decorations", () => {
   describe("GFM table decorations", () => {
     const tableMarkdown = `| A | B |\n|---|---|\n| 1 | 2 |`;
 
-    it("renders table as an HTML table element", async () => {
+    it("does not replace the raw markdown table with an HTML table widget", async () => {
       const { container } = render(<Sourcedown markdown={tableMarkdown} />);
 
       await waitFor(() => {
-        expect(container.querySelector("table")).not.toBeNull();
+        expect(container.querySelector(".cm-content")).toBeTruthy();
       });
+
+      expect(container.querySelector("table")).toBeNull();
+      expect(container.querySelector(".sd-table-widget")).toBeNull();
+      expect(lineTexts(container)).toEqual(["| A | B |", "|---|---|", "| 1 | 2 |"]);
     });
 
-    it("renders header cells as th elements with correct content", async () => {
+    it("marks header cells on the original source text", async () => {
       const { container } = render(<Sourcedown markdown={tableMarkdown} />);
 
       await waitFor(() => {
-        expect(container.querySelector("th")).not.toBeNull();
+        expect(container.querySelector(".sd-table-header-cell")).not.toBeNull();
       });
 
-      const ths = Array.from(container.querySelectorAll("th")).map(
+      const cells = Array.from(
+        container.querySelectorAll(".sd-table-header-cell")
+      ).map(
         (el) => el.textContent ?? ""
       );
-      expect(ths).toContain("A");
-      expect(ths).toContain("B");
+      expect(cells).toContain("A");
+      expect(cells).toContain("B");
     });
 
-    it("renders data cells as td elements with correct content", async () => {
+    it("marks data cells on the original source text", async () => {
       const { container } = render(<Sourcedown markdown={tableMarkdown} />);
 
       await waitFor(() => {
-        expect(container.querySelector("td")).not.toBeNull();
+        expect(container.querySelector(".sd-table-cell")).not.toBeNull();
       });
 
-      const tds = Array.from(container.querySelectorAll("td")).map(
+      const cells = Array.from(container.querySelectorAll(".sd-table-cell")).map(
         (el) => el.textContent ?? ""
       );
-      expect(tds).toContain("1");
-      expect(tds).toContain("2");
+      expect(cells).toContain("1");
+      expect(cells).toContain("2");
     });
 
-    it("copy invariant: widget renders from raw markdown cell data", async () => {
-      // The widget is built by extracting cells from the CM6 doc (raw markdown).
-      // Verify the widget content matches the source cells — proving the doc is unchanged.
+    it("uses inline-block cell widths to align columns without replacing source", async () => {
       const { container } = render(<Sourcedown markdown={tableMarkdown} />);
 
       await waitFor(() => {
-        expect(container.querySelector("table")).not.toBeNull();
+        expect(container.querySelector(".sd-table-cell")).not.toBeNull();
       });
 
-      const allCells = Array.from(
-        container.querySelectorAll("th, td")
-      ).map((el) => el.textContent ?? "");
-      expect(allCells).toContain("A");
-      expect(allCells).toContain("B");
-      expect(allCells).toContain("1");
-      expect(allCells).toContain("2");
+      expect(container.querySelector(".sd-table-cell")).toHaveStyle({
+        display: "inline-block",
+      });
+      expect(
+        container.querySelector<HTMLElement>(".sd-table-cell")?.style.minWidth
+      ).toMatch(/ch$/);
     });
 
-    it("copies raw markdown when copying from the table widget", async () => {
+    it("keeps pipe and delimiter source markers as original text", async () => {
       const { container } = render(<Sourcedown markdown={tableMarkdown} />);
 
-      const table = await waitFor(() => {
-        const el = container.querySelector(".sd-table-widget");
-        expect(el).not.toBeNull();
-        return el as HTMLElement;
+      await waitFor(() => {
+        expect(container.querySelector(".cm-content")).toBeTruthy();
       });
 
-      const clipboardData = { setData: vi.fn() };
-      const event = new Event("copy", { bubbles: true, cancelable: true });
-      Object.defineProperty(event, "clipboardData", {
-        value: clipboardData,
-      });
-
-      table.dispatchEvent(event);
-
-      expect(clipboardData.setData).toHaveBeenCalledWith(
-        "text/plain",
-        tableMarkdown
+      const text = container.querySelector(".cm-content")?.textContent ?? "";
+      expect(text).toContain("|");
+      expect(text).toContain("---");
+      expect(lineTexts(container)).toEqual(["| A | B |", "|---|---|", "| 1 | 2 |"]);
+      expect(container.querySelector(".sd-table-delimiter-cell")?.textContent).toBe(
+        "---"
       );
-      expect(event.defaultPrevented).toBe(true);
-    });
-
-    it("keeps pipe and delimiter source markers visible in the table widget", async () => {
-      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
-
-      const table = await waitFor(() => {
-        const el = container.querySelector(".sd-table-widget");
-        expect(el).not.toBeNull();
-        return el as HTMLElement;
-      });
-
-      expect(table.textContent).toContain("|");
-      expect(table.textContent).toContain("---");
     });
 
     it("does not crash on incomplete streaming table", async () => {
@@ -300,6 +288,40 @@ describe("markdown semantic decorations", () => {
 
       await waitFor(() => {
         expect(container.querySelector(".sd-code-block")).not.toBeNull();
+      });
+    });
+
+    it("marks each line in a fenced code block with sd-code-line", async () => {
+      const { container } = render(
+        <Sourcedown markdown={"```ts\nconst x = 1;\n```"} />
+      );
+
+      await waitFor(() => {
+        expect(container.querySelector(".cm-line.sd-code-line")).not.toBeNull();
+      });
+    });
+
+    it("marks the opening fence line with sd-code-line-first", async () => {
+      const { container } = render(
+        <Sourcedown markdown={"```ts\nconst x = 1;\n```"} />
+      );
+
+      await waitFor(() => {
+        expect(
+          container.querySelector(".cm-line.sd-code-line-first")
+        ).not.toBeNull();
+      });
+    });
+
+    it("marks the closing fence line with sd-code-line-last", async () => {
+      const { container } = render(
+        <Sourcedown markdown={"```ts\nconst x = 1;\n```"} />
+      );
+
+      await waitFor(() => {
+        expect(
+          container.querySelector(".cm-line.sd-code-line-last")
+        ).not.toBeNull();
       });
     });
   });
