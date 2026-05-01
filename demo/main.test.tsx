@@ -41,6 +41,23 @@ describe("sourcedown site", () => {
     expect(screen.queryByText("streaming markdown")).not.toBeInTheDocument();
   });
 
+  it("keeps one compact anchor nav and links to GitHub", () => {
+    const { container } = render(<App />);
+
+    const githubLink = screen.getByRole("link", { name: "GitHub repository" });
+    expect(githubLink).toHaveAttribute(
+      "href",
+      "https://github.com/nicognaW/sourcedown"
+    );
+    expect(githubLink).toHaveAttribute("target", "_blank");
+
+    const anchorHrefs = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')
+    ).map((link) => link.getAttribute("href"));
+
+    expect(anchorHrefs).toEqual(["#top", "#docs", "#roadmap"]);
+  });
+
   it("autoplays streamed markdown in the live demo", async () => {
     vi.useFakeTimers();
     render(<App />);

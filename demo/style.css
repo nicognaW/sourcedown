@@ -59,6 +59,24 @@ body {
   color: #111111;
 }
 
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 2px;
+  border: 1px solid #d4d4d4;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #111111;
+}
+
+.github-link:hover {
+  border-color: #bbbbbb;
+  background: #f5f5f5;
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
@@ -95,47 +113,6 @@ h1 {
   color: #525252;
   font-size: 19px;
   line-height: 1.55;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 32px;
-}
-
-.primary-action,
-.secondary-action {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  border-radius: 6px;
-  padding: 0 16px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.primary-action {
-  background: #111111;
-  color: #ffffff;
-  transition: background 0.15s ease;
-}
-
-.primary-action:hover {
-  background: #333333;
-}
-
-.secondary-action {
-  border: 1px solid #d4d4d4;
-  background: #ffffff;
-  color: #111111;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.secondary-action:hover {
-  background: #f5f5f5;
-  border-color: #bbbbbb;
 }
 
 .feature-grid article {
