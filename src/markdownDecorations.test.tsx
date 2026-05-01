@@ -40,6 +40,18 @@ describe("markdown semantic decorations", () => {
     expect(dec(container, "sd-h3")).not.toBeNull();
   });
 
+  it("does not apply code heading color to document headings", async () => {
+    const { container } = render(<Sourcedown markdown="# H1" />);
+
+    await waitFor(() => {
+      expect(dec(container, "sd-h1")).not.toBeNull();
+    });
+
+    expect(
+      container.querySelector(".sd-h1 .sd-code-heading, .sd-h1.sd-code-heading")
+    ).toBeNull();
+  });
+
   it("marks italic ranges with sd-em", async () => {
     const { container } = render(<Sourcedown markdown="_italic_" />);
 

@@ -90,7 +90,7 @@ describe("code highlighting", () => {
     const { container } = render(<Sourcedown markdown={markdown} />);
 
     await waitFor(() => {
-      expect(container.querySelector(".sd-code-heading")).not.toBeNull();
+      expect(container.querySelector(".sd-code-strong")).not.toBeNull();
     });
 
     expect(contentText(container)).toContain("# Heading");

@@ -71,7 +71,6 @@ export const codeHighlightExtension = syntaxHighlighting(
     { tag: tags.propertyName, class: "sd-code-string" },
     { tag: tags.tagName, class: "sd-code-tag" },
     { tag: tags.attributeName, class: "sd-code-attribute" },
-    { tag: tags.heading, class: "sd-code-heading" },
     { tag: tags.strong, class: "sd-code-strong" },
     { tag: tags.emphasis, class: "sd-code-emphasis" },
     { tag: tags.link, class: "sd-code-link" },
