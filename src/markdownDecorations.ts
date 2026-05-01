@@ -65,47 +65,69 @@ interface TableCellRange {
   text: string;
 }
 
+interface EmptyTableCellPipeRange {
+  from: number;
+  column: number;
+}
+
 interface TableLayout {
   cells: TableCellRange[];
+  emptyCellPipes: EmptyTableCellPipeRange[];
   widths: number[];
   lineStarts: number[];
 }
 
-function trimSegmentRange(
+interface TableRowLayout {
+  cells: TableCellRange[];
+  emptyCellPipes: EmptyTableCellPipeRange[];
+}
+
+function segmentRange(
   rowFrom: number,
   segmentStart: number,
   segmentEnd: number,
   rawRow: string
 ): { from: number; to: number; text: string } | null {
-  const segment = rawRow.slice(segmentStart, segmentEnd);
-  const leading = segment.length - segment.trimStart().length;
-  const trailing = segment.length - segment.trimEnd().length;
-  const from = rowFrom + segmentStart + leading;
-  const to = rowFrom + segmentEnd - trailing;
+  const from = rowFrom + segmentStart;
+  const to = rowFrom + segmentEnd;
   if (from >= to) return null;
 
   return {
     from,
     to,
-    text: rawRow.slice(segmentStart + leading, segmentEnd - trailing),
+    text: rawRow.slice(segmentStart, segmentEnd),
   };
 }
 
-function tableRowCellRanges(
+function isEscapedPipe(rawRow: string, index: number): boolean {
+  let slashCount = 0;
+  for (let i = index - 1; i >= 0 && rawRow[i] === "\\"; i--) {
+    slashCount++;
+  }
+  return slashCount % 2 === 1;
+}
+
+function unescapedPipeOffsets(rawRow: string): number[] {
+  const pipes: number[] = [];
+  for (let i = 0; i < rawRow.length; i++) {
+    if (rawRow[i] === "|" && !isEscapedPipe(rawRow, i)) pipes.push(i);
+  }
+  return pipes;
+}
+
+function tableRowLayout(
   from: number,
   to: number,
   doc: Text,
   kind: TableCellKind
-): TableCellRange[] {
+): TableRowLayout {
   const rawRow = doc.sliceString(from, to);
-  const pipes: number[] = [];
-  for (let i = 0; i < rawRow.length; i++) {
-    if (rawRow[i] === "|") pipes.push(i);
-  }
-  if (pipes.length === 0) return [];
+  const pipes = unescapedPipeOffsets(rawRow);
+  if (pipes.length === 0) return { cells: [], emptyCellPipes: [] };
 
   const boundaries = [-1, ...pipes, rawRow.length];
   const cells: TableCellRange[] = [];
+  const emptyCellPipes: EmptyTableCellPipeRange[] = [];
   let column = 0;
 
   for (let i = 0; i < boundaries.length - 1; i++) {
@@ -123,22 +145,47 @@ function tableRowCellRanges(
       continue;
     }
 
-    const trimmed = trimSegmentRange(from, segmentStart, segmentEnd, rawRow);
-    if (trimmed) {
-      cells.push({ ...trimmed, column, kind });
+    const range = segmentRange(from, segmentStart, segmentEnd, rawRow);
+    if (range) {
+      cells.push({ ...range, column, kind });
+    } else if (segmentEnd < rawRow.length && rawRow[segmentEnd] === "|") {
+      emptyCellPipes.push({ from: from + segmentEnd, column });
     }
     column++;
   }
 
-  return cells;
+  return { cells, emptyCellPipes };
+}
+
+function isWideCodePoint(codePoint: number): boolean {
+  return (
+    (codePoint >= 0x1100 && codePoint <= 0x115f) ||
+    (codePoint >= 0x2e80 && codePoint <= 0xa4cf) ||
+    (codePoint >= 0xac00 && codePoint <= 0xd7a3) ||
+    (codePoint >= 0xf900 && codePoint <= 0xfaff) ||
+    (codePoint >= 0xfe10 && codePoint <= 0xfe19) ||
+    (codePoint >= 0xfe30 && codePoint <= 0xfe6f) ||
+    (codePoint >= 0xff00 && codePoint <= 0xff60) ||
+    (codePoint >= 0xffe0 && codePoint <= 0xffe6)
+  );
+}
+
+function displayWidth(text: string): number {
+  let width = 0;
+  for (const char of text) {
+    const codePoint = char.codePointAt(0) ?? 0;
+    width += isWideCodePoint(codePoint) ? 2 : 1;
+  }
+  return width;
 }
 
 function tableCellWidth(text: string): number {
-  return Math.max(text.length, 3);
+  return Math.max(displayWidth(text), 3);
 }
 
 function parseTableLayout(tableNode: SyntaxNodeRef, doc: Text): TableLayout {
   const cells: TableCellRange[] = [];
+  const emptyCellPipes: EmptyTableCellPipeRange[] = [];
   const widths: number[] = [];
   const lineStarts: number[] = [];
   const startLine = doc.lineAt(tableNode.from);
@@ -152,13 +199,17 @@ function parseTableLayout(tableNode: SyntaxNodeRef, doc: Text): TableLayout {
   if (cursor.firstChild()) {
     do {
       if (cursor.name === "TableHeader") {
-        cells.push(...tableRowCellRanges(cursor.from, cursor.to, doc, "header"));
+        const row = tableRowLayout(cursor.from, cursor.to, doc, "header");
+        cells.push(...row.cells);
+        emptyCellPipes.push(...row.emptyCellPipes);
       } else if (cursor.name === "TableDelimiter") {
-        cells.push(
-          ...tableRowCellRanges(cursor.from, cursor.to, doc, "delimiter")
-        );
+        const row = tableRowLayout(cursor.from, cursor.to, doc, "delimiter");
+        cells.push(...row.cells);
+        emptyCellPipes.push(...row.emptyCellPipes);
       } else if (cursor.name === "TableRow") {
-        cells.push(...tableRowCellRanges(cursor.from, cursor.to, doc, "body"));
+        const row = tableRowLayout(cursor.from, cursor.to, doc, "body");
+        cells.push(...row.cells);
+        emptyCellPipes.push(...row.emptyCellPipes);
       }
     } while (cursor.nextSibling());
   }
@@ -170,7 +221,11 @@ function parseTableLayout(tableNode: SyntaxNodeRef, doc: Text): TableLayout {
     );
   }
 
-  return { cells, widths, lineStarts };
+  for (const emptyCellPipe of emptyCellPipes) {
+    widths[emptyCellPipe.column] = Math.max(widths[emptyCellPipe.column] ?? 0, 3);
+  }
+
+  return { cells, emptyCellPipes, widths, lineStarts };
 }
 
 function tableCellDecoration(cell: TableCellRange, width: number): Decoration {
@@ -181,7 +236,16 @@ function tableCellDecoration(cell: TableCellRange, width: number): Decoration {
   return Decoration.mark({
     class: classes.join(" "),
     attributes: {
-      style: `display: inline-block; min-width: ${width}ch;`,
+      style: `display: inline-block; width: ${width}ch; min-width: ${width}ch; white-space: pre;`,
+    },
+  });
+}
+
+function emptyCellPipeDecoration(width: number): Decoration {
+  return Decoration.mark({
+    class: "sd-table-empty-cell-pipe",
+    attributes: {
+      style: `margin-left: ${width}ch;`,
     },
   });
 }
@@ -206,6 +270,13 @@ function buildDecorations(state: EditorState): DecorationSet {
             from: cell.from,
             to: cell.to,
             dec: tableCellDecoration(cell, layout.widths[cell.column] ?? 3),
+          });
+        }
+        for (const pipe of layout.emptyCellPipes) {
+          marks.push({
+            from: pipe.from,
+            to: pipe.from + 1,
+            dec: emptyCellPipeDecoration(layout.widths[pipe.column] ?? 3),
           });
         }
         return false; // table children are handled as source-preserving marks
@@ -334,7 +405,8 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   },
   ".sd-table-cell": {
     boxSizing: "border-box",
-    padding: "0 0.6ch",
+    overflowWrap: "normal",
+    verticalAlign: "top",
   },
   ".sd-table-header-cell": {
     fontWeight: `var(--sd-table-header-weight, ${markdownStyleDefaults.tableHeaderWeight})`,
