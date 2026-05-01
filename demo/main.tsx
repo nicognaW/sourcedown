@@ -35,20 +35,20 @@ function AutoplayDemo({ className }: { className?: string }) {
     let timer: ReturnType<typeof setTimeout>;
 
     const tick = () => {
-      index = Math.min(index + 25, autoplaySample.length);
+      index = Math.min(index + 4, autoplaySample.length);
       setMarkdown(autoplaySample.slice(0, index));
       if (index < autoplaySample.length) {
-        timer = setTimeout(tick, 35);
+        timer = setTimeout(tick, 80);
       } else {
         timer = setTimeout(() => {
           index = 0;
           setMarkdown("");
-          timer = setTimeout(tick, 35);
+          timer = setTimeout(tick, 80);
         }, 3000);
       }
     };
 
-    timer = setTimeout(tick, 35);
+    timer = setTimeout(tick, 80);
     return () => clearTimeout(timer);
   }, []);
 
@@ -280,7 +280,7 @@ return <Sourcedown markdown={markdown} />;`}</code>
   --sd-font-size: 14px;
   --sd-line-height: 1.65;
 
-  --sd-h1-size: 1.5em;
+  --sd-h1-size: 2em;
   --sd-heading-weight: 700;
   --sd-code-font: ui-monospace, monospace;
   --sd-inline-code-bg: rgba(0,0,0,0.06);

@@ -44,14 +44,14 @@ describe("sourcedown site", () => {
     expect(demo).toHaveClass("autoplay-demo--hero");
 
     await act(async () => {
-      vi.advanceTimersByTime(120);
+      vi.advanceTimersByTime(300);
     });
 
     expect(sourceText(demo)).toContain("# sourcedown");
     expect(sourceText(demo)).not.toContain("zero config");
 
     await act(async () => {
-      vi.advanceTimersByTime(10000);
+      vi.advanceTimersByTime(30000);
     });
 
     expect(sourceText(demo)).toContain("zero config");

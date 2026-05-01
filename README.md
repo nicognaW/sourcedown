@@ -130,9 +130,9 @@ sourcedown exposes CSS variables for customization. import your own theme by ove
   --sd-selection-background: #b4d5ff;
 
   /* headings */
-  --sd-h1-size: 1.5em;
-  --sd-h2-size: 1.3em;
-  --sd-h3-size: 1.15em;
+  --sd-h1-size: 2em;
+  --sd-h2-size: 1.65em;
+  --sd-h3-size: 1.35em;
   --sd-heading-weight: 700;
 
   /* code */

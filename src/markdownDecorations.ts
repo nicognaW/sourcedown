@@ -72,17 +72,17 @@ export const markdownDecorationsExtension = ViewPlugin.fromClass(
 
 export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-h1": {
-    fontSize: "var(--sd-h1-size, 1.5em)",
+    fontSize: "var(--sd-h1-size, 2em)",
     fontWeight: "var(--sd-heading-weight, 700)",
     lineHeight: "1.3",
   },
   ".sd-h2": {
-    fontSize: "var(--sd-h2-size, 1.3em)",
+    fontSize: "var(--sd-h2-size, 1.65em)",
     fontWeight: "var(--sd-heading-weight, 700)",
     lineHeight: "1.3",
   },
   ".sd-h3": {
-    fontSize: "var(--sd-h3-size, 1.15em)",
+    fontSize: "var(--sd-h3-size, 1.35em)",
     fontWeight: "var(--sd-heading-weight, 700)",
     lineHeight: "1.3",
   },
