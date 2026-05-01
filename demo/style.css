@@ -307,8 +307,11 @@ h2 {
 }
 
 .autoplay-demo .sourcedown {
+  box-sizing: border-box;
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   height: 100%;
   padding: 14px 18px;
 }
