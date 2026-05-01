@@ -55,6 +55,18 @@ describe("sourcedown site", () => {
     expect(anchorHrefs).toEqual(["#top", "#docs", "#roadmap"]);
   });
 
+  it("renders docs snippets through sourcedown with fenced highlighted code", () => {
+    const { container } = render(<App />);
+
+    const docs = screen.getByRole("region", { name: "Docs" });
+    expect(sourceText(docs)).toContain("# Install");
+    expect(sourceText(docs)).toContain("```tsx");
+    expect(sourceText(docs)).toContain('import { Sourcedown } from "sourcedown";');
+    expect(docs.querySelector(".sd-code-keyword")).toBeInTheDocument();
+
+    expect(container.querySelector("#docs pre")).toBeNull();
+  });
+
   it("autoplays streamed markdown in the live demo", async () => {
     vi.useFakeTimers();
     render(<App />);
