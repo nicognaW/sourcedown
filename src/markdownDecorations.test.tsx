@@ -339,12 +339,20 @@ describe("markdown semantic decorations", () => {
   });
 
   describe("code block background", () => {
-    it("codeBlockBg default is subtle light oklch gray", () => {
-      expect(markdownStyleDefaults.codeBlockBg).toBe("oklch(0.95 0 0)");
+    it("codeBlockBg default matches streamdown --muted oklch", () => {
+      expect(markdownStyleDefaults.codeBlockBg).toBe("oklch(0.97 0 0)");
     });
 
-    it("codeBlockBgDark default is dark oklch gray", () => {
-      expect(markdownStyleDefaults.codeBlockBgDark).toBe("oklch(0.22 0 0)");
+    it("codeBlockBgDark default matches streamdown --card dark oklch", () => {
+      expect(markdownStyleDefaults.codeBlockBgDark).toBe("oklch(0.20 0 0)");
+    });
+
+    it("codeBlockBorder default matches streamdown --border oklch", () => {
+      expect(markdownStyleDefaults.codeBlockBorder).toBe("oklch(0.922 0 0)");
+    });
+
+    it("codeBlockBorderDark default matches streamdown dark --border", () => {
+      expect(markdownStyleDefaults.codeBlockBorderDark).toBe("oklch(1 0 0 / 10%)");
     });
 
     it("fenced code block renders with sd-code-block class", async () => {
