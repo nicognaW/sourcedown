@@ -35,6 +35,9 @@ export const markdownStyleDefaults = {
   // table — header semibold, delimiter pipes muted
   tableHeaderWeight: "600",
   tableDelimiterColor: "#9ca3af",
+  // fenced code block background — light and dark defaults
+  codeBlockBg: "oklch(0.95 0 0)",
+  codeBlockBgDark: "oklch(0.22 0 0)",
 } as const;
 
 const decs: Record<string, Decoration> = {
@@ -146,6 +149,11 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
     fontFamily:
       "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
     fontSize: "0.875em",
+    background: `var(--sd-code-bg, ${markdownStyleDefaults.codeBlockBg})`,
+    borderRadius: "0.25rem",
+  },
+  "&dark .sd-code-block": {
+    background: `var(--sd-code-bg, ${markdownStyleDefaults.codeBlockBgDark})`,
   },
   ".sd-link": {
     color: `var(--sd-link-color, ${markdownStyleDefaults.linkColor})`,
