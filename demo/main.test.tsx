@@ -77,10 +77,14 @@ describe("sourcedown site", () => {
 
     const api = screen.getByRole("region", { name: "API" });
     expect(sourceText(api)).toContain("# API");
-    expect(sourceText(api)).toContain("| Prop | Type | Default | Description |");
-    expect(sourceText(api)).toContain("| `markdown` | `string` |");
-    expect(sourceText(api)).toContain("| Headings | `# H1` through `###### H6` |");
-    expect(container.querySelector("#api table")).toBeNull();
+    // Tables now render as HTML <table> via widget (column-aligned, source-as-is copy preserved)
+    const apiTable = container.querySelector("#api table");
+    expect(apiTable).not.toBeNull();
+    const apiThs = Array.from(apiTable!.querySelectorAll("th")).map(
+      (el) => el.textContent ?? ""
+    );
+    expect(apiThs).toContain("Prop");
+    expect(apiThs).toContain("Type");
 
     const roadmap = screen.getByRole("region", { name: "Roadmap" });
     expect(sourceText(roadmap)).toContain("# Roadmap");
