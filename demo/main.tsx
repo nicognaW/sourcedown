@@ -39,6 +39,90 @@ const whySourceModeMarkdown = `# Why Source Mode Markdown
 WYSIWYG renderers hide syntax, so markdown-literate users lose sight of what was generated and what will copy. Plain markdown source is trustworthy, but noisy. Sourcedown keeps the source as the document and adds just enough semantic styling to make streamed output comfortable to read.
 `;
 
+const fence = "```";
+
+const docsMarkdown = `# Install
+
+${fence}bash
+npm install sourcedown
+# or
+bun add sourcedown
+${fence}
+
+## Basic Usage
+
+${fence}tsx
+import { Sourcedown } from "sourcedown";
+import "sourcedown/style.css";
+
+export function Message({ markdown }: { markdown: string }) {
+  return <Sourcedown markdown={markdown} />;
+}
+${fence}
+
+## Streaming
+
+Pass the growing markdown string as the \`markdown\` prop. Append-only updates use incremental CodeMirror transactions — no full re-render.
+
+${fence}tsx
+const [markdown, setMarkdown] = useState("");
+
+useEffect(() => {
+  const stream = startAIStream();
+  stream.on("chunk", (chunk: string) => {
+    setMarkdown((prev) => prev + chunk);
+  });
+  return () => stream.cancel();
+}, []);
+
+return <Sourcedown markdown={markdown} />;
+${fence}
+
+## Custom Link Handler
+
+${fence}tsx
+<Sourcedown
+  markdown={markdown}
+  onLinkClick={(event, href) => {
+    event.preventDefault();
+    navigate(href);
+  }}
+/>
+${fence}
+
+Default behavior: opens href in a new tab.
+
+## Theming
+
+Override CSS variables on \`.sourcedown\`:
+
+${fence}css
+.sourcedown {
+  --sd-foreground: #171717;
+  --sd-background: transparent;
+  --sd-font-size: 14px;
+  --sd-line-height: 1.65;
+
+  --sd-h1-size: 1.875rem;
+  --sd-h2-size: 1.5rem;
+  --sd-h3-size: 1.25rem;
+  --sd-h4-size: 1.125rem;
+  --sd-heading-weight: 600;
+  --sd-code-font: ui-monospace, monospace;
+  --sd-inline-code-bg: rgba(0,0,0,0.06);
+  --sd-link-color: oklch(57.61% 0.2508 258.23);
+  --sd-link-underline: oklch(57.61% 0.2508 258.23 / 0.4);
+  --sd-blockquote-color: #737373;
+
+  /* code syntax */
+  --sd-code-keyword: #cf222e;
+  --sd-code-string: #0a3069;
+  --sd-code-comment: #6e7781;
+  --sd-code-function: #8250df;
+}
+${fence}
+`;
+
 function AutoplayDemo({ className }: { className?: string }) {
   const [markdown, setMarkdown] = useState("");
 
@@ -152,58 +236,11 @@ export function App() {
 
       {/* ── docs ───────────────────────────────────────────────────── */}
 
-      <section className="compact-section" id="docs">
-        <p className="eyebrow">Get Started</p>
-        <h2>Install</h2>
-        <pre>
-          <code>{`npm install sourcedown
-# or
-bun add sourcedown`}</code>
-        </pre>
-
-        <h2 className="docs-h2">Basic Usage</h2>
-        <pre>
-          <code>{`import { Sourcedown } from "sourcedown";
-import "sourcedown/style.css";
-
-export function Message({ markdown }: { markdown: string }) {
-  return <Sourcedown markdown={markdown} />;
-}`}</code>
-        </pre>
-
-        <h2 className="docs-h2">Streaming</h2>
-        <p className="docs-p">
-          Pass the growing markdown string as the <code>markdown</code> prop.
-          Append-only updates use incremental CodeMirror transactions — no full
-          re-render.
-        </p>
-        <pre>
-          <code>{`const [markdown, setMarkdown] = useState("");
-
-useEffect(() => {
-  const stream = startAIStream();
-  stream.on("chunk", (chunk: string) => {
-    setMarkdown((prev) => prev + chunk);
-  });
-  return () => stream.cancel();
-}, []);
-
-return <Sourcedown markdown={markdown} />;`}</code>
-        </pre>
-
-        <h2 className="docs-h2">Custom Link Handler</h2>
-        <pre>
-          <code>{`<Sourcedown
-  markdown={markdown}
-  onLinkClick={(event, href) => {
-    event.preventDefault();
-    navigate(href);
-  }}
-/>`}</code>
-        </pre>
-        <p className="docs-p">
-          Default behavior: opens href in a new tab.
-        </p>
+      <section className="compact-section" id="docs" aria-label="Docs">
+        <Sourcedown
+          className="site-markdown site-markdown--docs"
+          markdown={docsMarkdown}
+        />
       </section>
 
       <section className="compact-section" id="api">
@@ -286,35 +323,6 @@ return <Sourcedown markdown={markdown} />;`}</code>
           Unknown languages fall back to plaintext.
         </p>
 
-        <h2 className="docs-h2">Theming</h2>
-        <p className="docs-p">
-          Override CSS variables on <code>.sourcedown</code>:
-        </p>
-        <pre>
-          <code>{`.sourcedown {
-  --sd-foreground: #171717;
-  --sd-background: transparent;
-  --sd-font-size: 14px;
-  --sd-line-height: 1.65;
-
-  --sd-h1-size: 1.875rem;
-  --sd-h2-size: 1.5rem;
-  --sd-h3-size: 1.25rem;
-  --sd-h4-size: 1.125rem;
-  --sd-heading-weight: 600;
-  --sd-code-font: ui-monospace, monospace;
-  --sd-inline-code-bg: rgba(0,0,0,0.06);
-  --sd-link-color: oklch(57.61% 0.2508 258.23);
-  --sd-link-underline: oklch(57.61% 0.2508 258.23 / 0.4);
-  --sd-blockquote-color: #737373;
-
-  /* code syntax */
-  --sd-code-keyword: #cf222e;
-  --sd-code-string: #0a3069;
-  --sd-code-comment: #6e7781;
-  --sd-code-function: #8250df;
-}`}</code>
-        </pre>
       </section>
 
       {/* ── roadmap ────────────────────────────────────────────────── */}
