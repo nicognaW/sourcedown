@@ -59,6 +59,14 @@ The v1 landing copy uses this positioning:
 
 The site must include a concise section explaining why source mode markdown exists. Core argument: developers who understand markdown want to see the real source because WYSIWYG renderers hide syntax and can feel unsafe; plain markdown is trustworthy but noisy; sourcedown keeps the trustworthy source visible while adding enough semantic styling to make streamed output comfortable to read.
 
+### site dogfood prototype
+
+Local-only site experiment that renders the sourcedown site's main content with `<Sourcedown />` itself. The goal is to evaluate whether the product site feels better when it reads like a source-mode markdown document.
+
+The prototype keeps site chrome such as navigation, layout shell, and the GitHub link in normal HTML. The main content sections are markdown documents rendered by sourcedown, so headings keep `#`, fenced code keeps ``` markers, markdown tables keep pipes, and code highlighting comes from the existing CM6-native highlighting.
+
+The prototype is for taste validation before deployment. It should not be pushed to production until NK reviews the local version.
+
 ## decisions
 
 - v1 is a React-only client component for modern browsers.
@@ -79,3 +87,4 @@ The site must include a concise section explaining why source mode markdown exis
 - v1 site headline and subtitle use the sourcedown-specific source-mode positioning, not a generic markdown renderer pitch.
 - v1 site keeps post-feature content compact, following streamdown.ai's rhythm rather than expanding into a long documentation page.
 - v1 site includes a "why source mode markdown" section based on NK's rationale: visibility and raw-copy safety for markdown-literate users, with better readability than plain source.
+- The next site experiment is a local-only dogfood prototype: render main content sections with sourcedown, keep chrome/layout in HTML, use existing CM6-native highlighting, and do not deploy until reviewed.
