@@ -366,10 +366,6 @@ h2 {
     font-size: 64px;
   }
 
-  .hero-demo {
-    min-height: auto;
-  }
-
   .feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

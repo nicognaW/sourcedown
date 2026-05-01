@@ -93,8 +93,8 @@ export function App() {
             <a className="primary-action" href="#docs">
               Read the docs
             </a>
-            <a className="secondary-action" href="#demo">
-              View demo
+            <a className="secondary-action" href="#docs">
+              Read the docs
             </a>
           </div>
         </div>
