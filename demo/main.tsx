@@ -3,16 +3,16 @@ import { createRoot } from "react-dom/client";
 import { Sourcedown } from "../src";
 import "./style.css";
 
-const autoplaySample = `# sourcedown
+const autoplaySample = `# Sourcedown
 
-**source-mode markdown** for streaming AI output.
+**Source-mode markdown** for streaming AI output.
 
 Every markdown character stays visible and copyable — \`**\`, \`#\`, \`[\`, all of it. Semantic styling is applied on top without replacing the source.
 
-- every marker stays visible and selectable
-- [links](https://example.com) are still clickable
-- copy always returns raw markdown
-- streaming appends incrementally
+- Every marker stays visible and selectable
+- [Links](https://example.com) are still clickable
+- Copy always returns raw markdown
+- Streaming appends incrementally
 
 \`\`\`ts
 import { Sourcedown } from "sourcedown";
@@ -22,9 +22,9 @@ function Message({ markdown }: { markdown: string }) {
 }
 \`\`\`
 
-> streaming is naturally incremental — just append chunks to the prop.
+> Streaming is naturally incremental — just append chunks to the prop.
 
-Works with **React 18 / 19**, zero config. No hidden characters, no replaced syntax.
+Works with **React 18 / 19**, Zero config. No hidden characters, no replaced syntax.
 `;
 
 const autoplayWords = autoplaySample.match(/\S+\s*/g) ?? [];
@@ -60,11 +60,10 @@ function AutoplayDemo({ className }: { className?: string }) {
     <div
       className={["autoplay-demo", className].filter(Boolean).join(" ")}
       role="region"
-      aria-label="autoplay sourcedown stream"
+      aria-label="Autoplay Sourcedown Stream"
     >
       <div className="demo-status" aria-hidden="true">
-        <span />
-        streaming markdown
+        Streaming Markdown
       </div>
       <Sourcedown markdown={markdown} />
     </div>
@@ -74,9 +73,9 @@ function AutoplayDemo({ className }: { className?: string }) {
 export function App() {
   return (
     <main className="site-shell">
-      <header className="site-nav" aria-label="site navigation">
+      <header className="site-nav" aria-label="Site navigation">
         <a className="brand" href="#top">
-          sourcedown
+          Sourcedown
         </a>
         <nav>
           <a href="#docs">Docs</a>
@@ -87,10 +86,10 @@ export function App() {
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <p className="eyebrow">source-as-is renderer</p>
-          <h1>source-mode markdown for streaming AI output</h1>
+          <p className="eyebrow">Source-as-Is Renderer</p>
+          <h1>Source-Mode Markdown for Streaming AI Output</h1>
           <p className="hero-subtitle">
-            keep every markdown character visible and copyable, while
+            Keep every markdown character visible and copyable, while
             headings, links, code, and lists still read like rendered markdown
           </p>
           <div className="hero-actions">
@@ -107,48 +106,48 @@ export function App() {
       </section>
 
       <section className="rationale" aria-labelledby="why-source-mode">
-        <p className="eyebrow">why source mode</p>
-        <h2 id="why-source-mode">why source mode markdown</h2>
+        <p className="eyebrow">Why Source Mode</p>
+        <h2 id="why-source-mode">Why Source Mode Markdown</h2>
         <p>
           WYSIWYG renderers hide syntax, so markdown-literate users lose sight
           of what was generated and what will copy. Plain markdown source is
-          trustworthy, but noisy. sourcedown keeps the source as the document
+          trustworthy, but noisy. Sourcedown keeps the source as the document
           and adds just enough semantic styling to make streamed output
           comfortable to read.
         </p>
       </section>
 
-      <section className="feature-grid" id="features" aria-label="features">
+      <section className="feature-grid" id="features" aria-label="Features">
         <article>
-          <h3>source-as-is</h3>
-          <p>syntax stays visible, selectable, and copyable as raw markdown.</p>
+          <h3>Source-as-Is</h3>
+          <p>Syntax stays visible, selectable, and copyable as raw markdown.</p>
         </article>
         <article>
-          <h3>streaming first</h3>
-          <p>append-only updates go into the CodeMirror buffer incrementally.</p>
+          <h3>Streaming First</h3>
+          <p>Append-only updates go into the CodeMirror buffer incrementally.</p>
         </article>
         <article>
-          <h3>clickable links</h3>
-          <p>full markdown link ranges can open links without replacing text.</p>
+          <h3>Clickable Links</h3>
+          <p>Full markdown link ranges can open links without replacing text.</p>
         </article>
         <article>
-          <h3>CM6 highlighting</h3>
-          <p>common fenced code languages get native CodeMirror highlighting.</p>
+          <h3>CM6 Highlighting</h3>
+          <p>Common fenced code languages get native CodeMirror highlighting.</p>
         </article>
       </section>
 
       {/* ── docs ───────────────────────────────────────────────────── */}
 
       <section className="compact-section" id="docs">
-        <p className="eyebrow">get started</p>
-        <h2>install</h2>
+        <p className="eyebrow">Get Started</p>
+        <h2>Install</h2>
         <pre>
           <code>{`npm install sourcedown
 # or
 bun add sourcedown`}</code>
         </pre>
 
-        <h2 className="docs-h2">basic usage</h2>
+        <h2 className="docs-h2">Basic Usage</h2>
         <pre>
           <code>{`import { Sourcedown } from "sourcedown";
 import "sourcedown/style.css";
@@ -158,7 +157,7 @@ export function Message({ markdown }: { markdown: string }) {
 }`}</code>
         </pre>
 
-        <h2 className="docs-h2">streaming</h2>
+        <h2 className="docs-h2">Streaming</h2>
         <p className="docs-p">
           Pass the growing markdown string as the <code>markdown</code> prop.
           Append-only updates use incremental CodeMirror transactions — no full
@@ -178,7 +177,7 @@ useEffect(() => {
 return <Sourcedown markdown={markdown} />;`}</code>
         </pre>
 
-        <h2 className="docs-h2">custom link handler</h2>
+        <h2 className="docs-h2">Custom Link Handler</h2>
         <pre>
           <code>{`<Sourcedown
   markdown={markdown}
@@ -194,15 +193,15 @@ return <Sourcedown markdown={markdown} />;`}</code>
       </section>
 
       <section className="compact-section" id="api">
-        <p className="eyebrow">api</p>
-        <h2>props</h2>
+        <p className="eyebrow">API</p>
+        <h2>Props</h2>
         <table className="docs-table">
           <thead>
             <tr>
-              <th>prop</th>
-              <th>type</th>
-              <th>default</th>
-              <th>description</th>
+              <th>Prop</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
             </tr>
           </thead>
           <tbody>
@@ -210,51 +209,51 @@ return <Sourcedown markdown={markdown} />;`}</code>
               <td><code>markdown</code></td>
               <td><code>string</code></td>
               <td>—</td>
-              <td>markdown source string</td>
+              <td>Markdown source string</td>
             </tr>
             <tr>
               <td><code>className</code></td>
               <td><code>string</code></td>
               <td><code>undefined</code></td>
-              <td>extra class on the root element</td>
+              <td>Extra class on the root element</td>
             </tr>
             <tr>
               <td><code>autoScroll</code></td>
               <td><code>boolean</code></td>
               <td><code>true</code></td>
-              <td>pin to bottom while streaming when already at bottom</td>
+              <td>Pin to bottom while streaming when already at bottom</td>
             </tr>
             <tr>
               <td><code>onLinkClick</code></td>
               <td><code>{"(e, href) => void"}</code></td>
               <td><code>undefined</code></td>
-              <td>called on link click; default opens in new tab</td>
+              <td>Called on link click; default opens in new tab</td>
             </tr>
           </tbody>
         </table>
 
-        <h2 className="docs-h2">supported syntax</h2>
+        <h2 className="docs-h2">Supported Syntax</h2>
         <p className="docs-p">
           All markers stay visible. Semantic styling is applied on top.
         </p>
         <table className="docs-table">
           <thead>
             <tr>
-              <th>syntax</th>
-              <th>example</th>
+              <th>Syntax</th>
+              <th>Example</th>
             </tr>
           </thead>
           <tbody>
             {[
-              ["headings", "# H1 through ###### H6"],
-              ["bold", "**bold**"],
-              ["italic", "_italic_"],
-              ["inline code", "`code`"],
-              ["fenced code", "```ts"],
-              ["links", "[text](url)"],
-              ["blockquotes", "> quote"],
-              ["lists", "- item / 1. item"],
-              ["horizontal rules", "---"],
+              ["Headings", "# H1 through ###### H6"],
+              ["Bold", "**bold**"],
+              ["Italic", "_italic_"],
+              ["Inline code", "`code`"],
+              ["Fenced code", "```ts"],
+              ["Links", "[text](url)"],
+              ["Blockquotes", "> quote"],
+              ["Lists", "- item / 1. item"],
+              ["Horizontal rules", "---"],
             ].map(([syntax, example]) => (
               <tr key={syntax}>
                 <td>{syntax}</td>
@@ -264,7 +263,7 @@ return <Sourcedown markdown={markdown} />;`}</code>
           </tbody>
         </table>
 
-        <h2 className="docs-h2">code highlighting languages</h2>
+        <h2 className="docs-h2">Code Highlighting Languages</h2>
         <p className="docs-p">
           CM6-native highlighting for:{" "}
           <code>js</code> / <code>ts</code> / <code>tsx</code> /{" "}
@@ -273,7 +272,7 @@ return <Sourcedown markdown={markdown} />;`}</code>
           Unknown languages fall back to plaintext.
         </p>
 
-        <h2 className="docs-h2">theming</h2>
+        <h2 className="docs-h2">Theming</h2>
         <p className="docs-p">
           Override CSS variables on <code>.sourcedown</code>:
         </p>
@@ -307,18 +306,18 @@ return <Sourcedown markdown={markdown} />;`}</code>
       {/* ── roadmap ────────────────────────────────────────────────── */}
 
       <section className="compact-section" id="roadmap">
-        <p className="eyebrow">roadmap</p>
-        <h2>what&rsquo;s next</h2>
+        <p className="eyebrow">Roadmap</p>
+        <h2>What&rsquo;s Next</h2>
         <p className="docs-p">
-          v1 ships a read-only renderer. planned for later versions:
+          Version 1 ships a read-only renderer. Planned for later versions:
         </p>
         <ul className="docs-list">
           <li>
-            <strong>editable prompt input</strong> — <code>{"<SourcedownInput />"}</code>{" "}
+            <strong>Editable prompt input</strong> — <code>{"<SourcedownInput />"}</code>{" "}
             with IME, undo/redo, and placeholder
           </li>
           <li>
-            <strong>shiki highlighting</strong> — richer themes, vscode-style
+            <strong>Shiki highlighting</strong> — richer themes, VS Code-style
             colors, streaming tokenizer
           </li>
           <li>
@@ -326,11 +325,11 @@ return <Sourcedown markdown={markdown} />;`}</code>
             projects
           </li>
           <li>
-            <strong>table styling</strong> — pipe table visual rendering with
+            <strong>Table styling</strong> — pipe table visual rendering with
             source intact
           </li>
           <li>
-            <strong>block widgets</strong> — optional mermaid / math / image
+            <strong>Block widgets</strong> — optional Mermaid / math / image
             previews that append below source
           </li>
         </ul>

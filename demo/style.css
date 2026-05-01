@@ -326,14 +326,6 @@ h2 {
   font-size: 13px;
 }
 
-.demo-status span {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #16a34a;
-  box-shadow: 0 0 0 4px rgb(22 163 74 / 0.12);
-}
-
 .demo-controls {
   display: flex;
   gap: 8px;
