@@ -1,6 +1,7 @@
 "use client";
 
 import { markdown as markdownLanguage } from "@codemirror/lang-markdown";
+import { GFM } from "@lezer/markdown";
 import { EditorState, type Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { useEffect, useRef } from "react";
@@ -30,7 +31,7 @@ function createExtensions(
     EditorState.readOnly.of(true),
     EditorView.editable.of(false),
     EditorView.lineWrapping,
-    markdownLanguage({ codeLanguages: codeLanguageFor }),
+    markdownLanguage({ codeLanguages: codeLanguageFor, extensions: [GFM] }),
     codeHighlightExtension,
     codeHighlightTheme,
     sourcedownBaseTheme,

@@ -32,6 +32,9 @@ export const markdownStyleDefaults = {
   // blockquote — muted-foreground, border at 30% opacity
   blockquoteColor: "#737373",
   blockquoteBorder: "4px solid rgb(115 115 115 / 0.3)",
+  // table — header semibold, delimiter pipes muted
+  tableHeaderWeight: "600",
+  tableDelimiterColor: "#9ca3af",
 } as const;
 
 const decs: Record<string, Decoration> = {
@@ -52,6 +55,11 @@ const decs: Record<string, Decoration> = {
   Blockquote: Decoration.mark({ class: "sd-blockquote" }),
   ListItem: Decoration.mark({ class: "sd-list-item" }),
   HorizontalRule: Decoration.mark({ class: "sd-hr" }),
+  Table: Decoration.mark({ class: "sd-table" }),
+  TableHeader: Decoration.mark({ class: "sd-table-header" }),
+  TableDelimiter: Decoration.mark({ class: "sd-table-delimiter" }),
+  TableRow: Decoration.mark({ class: "sd-table-row" }),
+  TableCell: Decoration.mark({ class: "sd-table-cell" }),
 };
 
 function buildDecorations(view: EditorView): DecorationSet {
@@ -153,5 +161,11 @@ export const markdownDecorationsTheme = EditorView.baseTheme({
   },
   ".sd-hr": {
     opacity: "0.4",
+  },
+  ".sd-table-header": {
+    fontWeight: `var(--sd-table-header-weight, ${markdownStyleDefaults.tableHeaderWeight})`,
+  },
+  ".sd-table-delimiter": {
+    color: `var(--sd-table-delimiter-color, ${markdownStyleDefaults.tableDelimiterColor})`,
   },
 });
