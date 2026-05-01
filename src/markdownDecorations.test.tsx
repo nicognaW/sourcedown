@@ -199,9 +199,7 @@ describe("markdown semantic decorations", () => {
 
       const cells = Array.from(
         container.querySelectorAll(".sd-table-header-cell")
-      ).map(
-        (el) => el.textContent ?? ""
-      );
+      ).map((el) => (el.textContent ?? "").trim());
       expect(cells).toContain("A");
       expect(cells).toContain("B");
     });
@@ -214,7 +212,7 @@ describe("markdown semantic decorations", () => {
       });
 
       const cells = Array.from(container.querySelectorAll(".sd-table-cell")).map(
-        (el) => el.textContent ?? ""
+        (el) => (el.textContent ?? "").trim()
       );
       expect(cells).toContain("1");
       expect(cells).toContain("2");
@@ -249,6 +247,74 @@ describe("markdown semantic decorations", () => {
       expect(container.querySelector(".sd-table-delimiter-cell")?.textContent).toBe(
         "---"
       );
+    });
+
+    it("uses fixed nowrap widths from the widest cell in each column", async () => {
+      const unevenTable = [
+        "| Prop | Type | Description |",
+        "|---|---|---|",
+        "| markdown | string | Markdown source string used for streaming output |",
+        "| className | string | Extra class |",
+      ].join("\n");
+      const { container } = render(<Sourcedown markdown={unevenTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-table-cell")).not.toBeNull();
+      });
+
+      const descriptionCells = Array.from(
+        container.querySelectorAll<HTMLElement>(".sd-table-cell")
+      ).filter((el) =>
+        ["Description", "Markdown source string used for streaming output"].includes(
+          (el.textContent ?? "").trim()
+        )
+      );
+
+      expect(descriptionCells).toHaveLength(2);
+      expect(descriptionCells[0]).toHaveStyle({ whiteSpace: "pre" });
+      expect(descriptionCells[0].style.width).toBe(descriptionCells[1].style.width);
+      expect(descriptionCells[0].style.width).toMatch(/ch$/);
+    });
+
+    it("keeps empty cell separators original while reserving column width", async () => {
+      const sparseTable = [
+        "| A | B | C |",
+        "|---|---|---|",
+        "| 1 || 3 |",
+      ].join("\n");
+      const { container } = render(<Sourcedown markdown={sparseTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-table-empty-cell-pipe")).not.toBeNull();
+      });
+
+      const emptyCellPipe = container.querySelector<HTMLElement>(
+        ".sd-table-empty-cell-pipe"
+      );
+      expect(emptyCellPipe?.textContent).toBe("|");
+      expect(emptyCellPipe?.style.marginLeft).toMatch(/ch$/);
+      expect(lineTexts(container)).toContain("| 1 || 3 |");
+    });
+
+    it("does not split escaped pipe characters inside cells", async () => {
+      const escapedPipeTable = [
+        "| Left | Right |",
+        "|---|---|",
+        "| a \\| b | c |",
+      ].join("\n");
+      const { container } = render(<Sourcedown markdown={escapedPipeTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-table-cell")).not.toBeNull();
+      });
+
+      const cells = Array.from(container.querySelectorAll(".sd-table-cell")).map(
+        (el) => (el.textContent ?? "").trim()
+      );
+      expect(cells).toContain("a \\| b");
+      expect(cells).toContain("c");
+      expect(cells).not.toContain("b");
+      expect(lineTexts(container)).toContain("| a \\| b | c |");
     });
 
     it("does not crash on incomplete streaming table", async () => {
