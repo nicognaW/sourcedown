@@ -130,21 +130,21 @@ sourcedown exposes CSS variables for customization. import your own theme by ove
   --sd-selection-background: #b4d5ff;
 
   /* headings */
-  --sd-h1-size: 2em;
-  --sd-h2-size: 1.65em;
-  --sd-h3-size: 1.35em;
-  --sd-heading-weight: 700;
+  --sd-h1-size: 1.875em;
+  --sd-h2-size: 1.5em;
+  --sd-h3-size: 1.25em;
+  --sd-heading-weight: 600;
 
   /* code */
   --sd-code-font: ui-monospace, "Cascadia Code", monospace;
   --sd-inline-code-bg: rgba(0, 0, 0, 0.06);
 
   /* links */
-  --sd-link-color: #0969da;
-  --sd-link-underline: rgba(9, 105, 218, 0.4);
+  --sd-link-color: #6366f1;
+  --sd-link-underline: rgba(99, 102, 241, 0.4);
 
   /* blockquotes */
-  --sd-blockquote-color: rgba(0, 0, 0, 0.6);
+  --sd-blockquote-color: #737373;
 
   /* code syntax highlighting */
   --sd-code-keyword: #cf222e;

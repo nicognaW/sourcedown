@@ -51,7 +51,7 @@ describe("sourcedown site", () => {
     expect(sourceText(demo)).not.toContain("zero config");
 
     await act(async () => {
-      vi.advanceTimersByTime(30000);
+      vi.advanceTimersByTime(9500);
     });
 
     expect(sourceText(demo)).toContain("zero config");

@@ -8,6 +8,15 @@ import {
   type ViewUpdate,
 } from "@codemirror/view";
 
+/** Default style tokens — exported so they are testable and overridable via CSS vars. */
+export const markdownStyleDefaults = {
+  headingWeight: "600",
+  strongWeight: "600",
+  linkColor: "#6366f1",
+  linkUnderline: "rgba(99,102,241,0.4)",
+  blockquoteColor: "#737373",
+} as const;
+
 const decs: Record<string, Decoration> = {
   ATXHeading1: Decoration.mark({ class: "sd-h1" }),
   ATXHeading2: Decoration.mark({ class: "sd-h2" }),
@@ -72,46 +81,52 @@ export const markdownDecorationsExtension = ViewPlugin.fromClass(
 
 export const markdownDecorationsTheme = EditorView.baseTheme({
   ".sd-h1": {
-    fontSize: "var(--sd-h1-size, 2em)",
-    fontWeight: "var(--sd-heading-weight, 700)",
+    fontSize: "var(--sd-h1-size, 1.875em)",
+    fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
     lineHeight: "1.3",
+    letterSpacing: "-0.025em",
   },
   ".sd-h2": {
-    fontSize: "var(--sd-h2-size, 1.65em)",
-    fontWeight: "var(--sd-heading-weight, 700)",
+    fontSize: "var(--sd-h2-size, 1.5em)",
+    fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
     lineHeight: "1.3",
+    letterSpacing: "-0.025em",
   },
   ".sd-h3": {
-    fontSize: "var(--sd-h3-size, 1.35em)",
-    fontWeight: "var(--sd-heading-weight, 700)",
+    fontSize: "var(--sd-h3-size, 1.25em)",
+    fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})`,
     lineHeight: "1.3",
+    letterSpacing: "-0.025em",
   },
-  ".sd-h4": { fontWeight: "var(--sd-heading-weight, 700)" },
-  ".sd-h5": { fontWeight: "var(--sd-heading-weight, 700)" },
-  ".sd-h6": { fontWeight: "var(--sd-heading-weight, 700)" },
-  ".sd-strong": { fontWeight: "bold" },
+  ".sd-h4": { fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})` },
+  ".sd-h5": { fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})` },
+  ".sd-h6": { fontWeight: `var(--sd-heading-weight, ${markdownStyleDefaults.headingWeight})` },
+  ".sd-strong": { fontWeight: markdownStyleDefaults.strongWeight },
   ".sd-em": { fontStyle: "italic" },
   ".sd-inline-code": {
     fontFamily:
       "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
     backgroundColor: "var(--sd-inline-code-bg, rgba(0,0,0,0.06))",
-    borderRadius: "3px",
-    padding: "0.1em 0.25em",
-    fontSize: "0.9em",
+    borderRadius: "6px",
+    padding: "2px 6px",
+    fontSize: "0.875em",
   },
   ".sd-code-block": {
     fontFamily:
       "var(--sd-code-font, ui-monospace, 'Cascadia Code', monospace)",
-    fontSize: "0.9em",
+    fontSize: "0.875em",
   },
   ".sd-link": {
-    color: "var(--sd-link-color, #0969da)",
+    color: `var(--sd-link-color, ${markdownStyleDefaults.linkColor})`,
     textDecoration: "underline",
-    textDecorationColor: "var(--sd-link-underline, rgba(9,105,218,0.4))",
+    textDecorationColor: `var(--sd-link-underline, ${markdownStyleDefaults.linkUnderline})`,
     cursor: "pointer",
   },
   ".sd-blockquote": {
-    color: "var(--sd-blockquote-color, rgba(0,0,0,0.6))",
+    color: `var(--sd-blockquote-color, ${markdownStyleDefaults.blockquoteColor})`,
+    fontStyle: "italic",
+    borderLeft: "3px solid rgba(0,0,0,0.15)",
+    paddingLeft: "0.75em",
   },
   ".sd-hr": {
     opacity: "0.4",

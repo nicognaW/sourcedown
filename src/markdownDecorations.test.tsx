@@ -1,5 +1,6 @@
 import { render, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { markdownStyleDefaults } from "./markdownDecorations";
 import { Sourcedown } from "./Sourcedown";
 
 function dec(container: HTMLElement, cls: string): Element | null {
@@ -115,6 +116,24 @@ describe("markdown semantic decorations", () => {
 
     await waitFor(() => {
       expect(dec(container, "sd-hr")).not.toBeNull();
+    });
+  });
+
+  describe("streamdown-aligned default styles", () => {
+    it("heading weight default is semibold 600", () => {
+      expect(markdownStyleDefaults.headingWeight).toBe("600");
+    });
+
+    it("strong weight default is semibold 600, not bold/700", () => {
+      expect(markdownStyleDefaults.strongWeight).toBe("600");
+    });
+
+    it("link color default is indigo #6366f1", () => {
+      expect(markdownStyleDefaults.linkColor).toBe("#6366f1");
+    });
+
+    it("blockquote color default is muted gray #737373", () => {
+      expect(markdownStyleDefaults.blockquoteColor).toBe("#737373");
     });
   });
 

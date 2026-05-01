@@ -27,28 +27,32 @@ function Message({ markdown }: { markdown: string }) {
 Works with **React 18 / 19**, zero config. No hidden characters, no replaced syntax.
 `;
 
+const autoplayWords = autoplaySample.match(/\S+\s*/g) ?? [];
+
 function AutoplayDemo({ className }: { className?: string }) {
   const [markdown, setMarkdown] = useState("");
 
   useEffect(() => {
     let index = 0;
+    let built = "";
     let timer: ReturnType<typeof setTimeout>;
 
     const tick = () => {
-      index = Math.min(index + 4, autoplaySample.length);
-      setMarkdown(autoplaySample.slice(0, index));
-      if (index < autoplaySample.length) {
-        timer = setTimeout(tick, 80);
+      if (index < autoplayWords.length) {
+        built += autoplayWords[index++];
+        setMarkdown(built);
+        timer = setTimeout(tick, 100);
       } else {
         timer = setTimeout(() => {
           index = 0;
+          built = "";
           setMarkdown("");
-          timer = setTimeout(tick, 80);
+          timer = setTimeout(tick, 100);
         }, 3000);
       }
     };
 
-    timer = setTimeout(tick, 80);
+    timer = setTimeout(tick, 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -280,12 +284,15 @@ return <Sourcedown markdown={markdown} />;`}</code>
   --sd-font-size: 14px;
   --sd-line-height: 1.65;
 
-  --sd-h1-size: 2em;
-  --sd-heading-weight: 700;
+  --sd-h1-size: 1.875em;
+  --sd-h2-size: 1.5em;
+  --sd-h3-size: 1.25em;
+  --sd-heading-weight: 600;
   --sd-code-font: ui-monospace, monospace;
   --sd-inline-code-bg: rgba(0,0,0,0.06);
-  --sd-link-color: #0969da;
-  --sd-blockquote-color: rgba(0,0,0,0.6);
+  --sd-link-color: #6366f1;
+  --sd-link-underline: rgba(99,102,241,0.4);
+  --sd-blockquote-color: #737373;
 
   /* code syntax */
   --sd-code-keyword: #cf222e;
