@@ -299,7 +299,17 @@ h2 {
   margin-top: 0;
 }
 
+.autoplay-demo--hero {
+  display: flex;
+  flex-direction: column;
+  height: clamp(430px, 54vh, 560px);
+  min-height: 0;
+}
+
 .autoplay-demo .sourcedown {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
   padding: 14px 18px;
 }
 
@@ -366,6 +376,10 @@ h2 {
     font-size: 64px;
   }
 
+  .autoplay-demo--hero {
+    height: 440px;
+  }
+
   .feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -392,6 +406,10 @@ h2 {
 
   .hero-subtitle {
     font-size: 17px;
+  }
+
+  .autoplay-demo--hero {
+    height: 400px;
   }
 
   .feature-grid {

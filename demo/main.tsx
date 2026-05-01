@@ -27,7 +27,7 @@ function Message({ markdown }: { markdown: string }) {
 Works with **React 18 / 19**, zero config. No hidden characters, no replaced syntax.
 `;
 
-function AutoplayDemo() {
+function AutoplayDemo({ className }: { className?: string }) {
   const [markdown, setMarkdown] = useState("");
 
   useEffect(() => {
@@ -54,7 +54,7 @@ function AutoplayDemo() {
 
   return (
     <div
-      className="autoplay-demo"
+      className={["autoplay-demo", className].filter(Boolean).join(" ")}
       role="region"
       aria-label="autoplay sourcedown stream"
     >
@@ -93,13 +93,13 @@ export function App() {
             <a className="primary-action" href="#docs">
               Read the docs
             </a>
-            <a className="secondary-action" href="#docs">
-              Read the docs
+            <a className="secondary-action" href="#why-source-mode">
+              Why source mode
             </a>
           </div>
         </div>
 
-        <AutoplayDemo />
+        <AutoplayDemo className="autoplay-demo--hero" />
       </section>
 
       <section className="rationale" aria-labelledby="why-source-mode">

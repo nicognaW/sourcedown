@@ -41,6 +41,8 @@ describe("sourcedown site", () => {
       name: "autoplay sourcedown stream",
     });
 
+    expect(demo).toHaveClass("autoplay-demo--hero");
+
     await act(async () => {
       vi.advanceTimersByTime(120);
     });
