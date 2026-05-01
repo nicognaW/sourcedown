@@ -111,8 +111,14 @@ function isEscapedPipe(rawRow: string, index: number): boolean {
 
 function unescapedPipeOffsets(rawRow: string): number[] {
   const pipes: number[] = [];
+  let inlineCodeOpen = false;
   for (let i = 0; i < rawRow.length; i++) {
-    if (rawRow[i] === "|" && !isEscapedPipe(rawRow, i)) pipes.push(i);
+    if (rawRow[i] === "`" && !isEscapedPipe(rawRow, i)) {
+      inlineCodeOpen = !inlineCodeOpen;
+    }
+    if (rawRow[i] === "|" && !inlineCodeOpen && !isEscapedPipe(rawRow, i)) {
+      pipes.push(i);
+    }
   }
   return pipes;
 }
