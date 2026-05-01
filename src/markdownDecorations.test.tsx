@@ -250,6 +250,19 @@ describe("markdown semantic decorations", () => {
       expect(event.defaultPrevented).toBe(true);
     });
 
+    it("keeps pipe and delimiter source markers visible in the table widget", async () => {
+      const { container } = render(<Sourcedown markdown={tableMarkdown} />);
+
+      const table = await waitFor(() => {
+        const el = container.querySelector(".sd-table-widget");
+        expect(el).not.toBeNull();
+        return el as HTMLElement;
+      });
+
+      expect(table.textContent).toContain("|");
+      expect(table.textContent).toContain("---");
+    });
+
     it("does not crash on incomplete streaming table", async () => {
       const { container, unmount } = render(
         <Sourcedown markdown="| A |" />
