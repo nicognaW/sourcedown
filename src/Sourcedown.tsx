@@ -12,6 +12,7 @@ import {
 } from "./codeHighlight";
 import { linkClickExtension } from "./linkClick";
 import {
+  markdownCopyExtension,
   markdownDecorationsExtension,
   markdownDecorationsTheme,
 } from "./markdownDecorations";
@@ -35,6 +36,7 @@ function createExtensions(
     codeHighlightExtension,
     codeHighlightTheme,
     sourcedownBaseTheme,
+    markdownCopyExtension,
     markdownDecorationsExtension,
     markdownDecorationsTheme,
     linkClickExtension(onLinkClickRef),

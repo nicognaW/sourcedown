@@ -1,5 +1,10 @@
 import { syntaxTree } from "@codemirror/language";
-import { type EditorState, type Text, RangeSetBuilder, StateField } from "@codemirror/state";
+import {
+  type EditorState,
+  type Text,
+  RangeSetBuilder,
+  StateField,
+} from "@codemirror/state";
 import {
   Decoration,
   type DecorationSet,
@@ -105,7 +110,8 @@ function parseTable(tableNode: SyntaxNodeRef, doc: Text): TableData {
 class TableWidget extends WidgetType {
   constructor(
     private readonly headers: string[],
-    private readonly rows: string[][]
+    private readonly rows: string[][],
+    private readonly rawMarkdown: string
   ) {
     super();
   }
@@ -113,6 +119,13 @@ class TableWidget extends WidgetType {
   toDOM(): HTMLElement {
     const table = document.createElement("table");
     table.className = "sd-table-widget";
+    table.dataset.sdRawMarkdown = this.rawMarkdown;
+    table.addEventListener("copy", (event) => {
+      if (!event.clipboardData) return;
+
+      event.clipboardData.setData("text/plain", this.rawMarkdown);
+      event.preventDefault();
+    });
 
     if (this.headers.length > 0) {
       const thead = table.appendChild(document.createElement("thead"));
@@ -141,10 +154,42 @@ class TableWidget extends WidgetType {
     if (!(other instanceof TableWidget)) return false;
     return (
       JSON.stringify(this.headers) === JSON.stringify(other.headers) &&
-      JSON.stringify(this.rows) === JSON.stringify(other.rows)
+      JSON.stringify(this.rows) === JSON.stringify(other.rows) &&
+      this.rawMarkdown === other.rawMarkdown
     );
   }
 }
+
+function closestTableWidget(target: EventTarget | null): HTMLElement | null {
+  if (!(target instanceof Node)) return null;
+
+  const element =
+    target instanceof Element ? target : target.parentElement;
+  return element?.closest<HTMLElement>(".sd-table-widget") ?? null;
+}
+
+function rawMarkdownForCopy(
+  event: ClipboardEvent,
+  view: EditorView
+): string | null {
+  const selection = view.state.selection.main;
+  if (!selection.empty) {
+    return view.state.sliceDoc(selection.from, selection.to);
+  }
+
+  return closestTableWidget(event.target)?.dataset.sdRawMarkdown ?? null;
+}
+
+export const markdownCopyExtension = EditorView.domEventHandlers({
+  copy(event, view) {
+    const rawMarkdown = rawMarkdownForCopy(event, view);
+    if (!rawMarkdown || !event.clipboardData) return false;
+
+    event.clipboardData.setData("text/plain", rawMarkdown);
+    event.preventDefault();
+    return true;
+  },
+});
 
 function buildDecorations(state: EditorState): DecorationSet {
   const builder = new RangeSetBuilder<Decoration>();
@@ -155,10 +200,13 @@ function buildDecorations(state: EditorState): DecorationSet {
     .iterate((node) => {
       if (node.name === "Table") {
         const { headers, rows } = parseTable(node, state.doc);
+        const rawMarkdown = state.doc.sliceString(node.from, node.to);
         marks.push({
           from: node.from,
           to: node.to,
-          dec: Decoration.replace({ widget: new TableWidget(headers, rows) }),
+          dec: Decoration.replace({
+            widget: new TableWidget(headers, rows, rawMarkdown),
+          }),
         });
         return false; // skip children — widget handles the entire table
       }
