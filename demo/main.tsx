@@ -172,7 +172,7 @@ Version 1 ships a read-only renderer. Planned for later versions:
 - **Editable prompt input** — \`<SourcedownInput />\` with IME, undo/redo, and placeholder
 - **Shiki highlighting** — richer themes, VS Code-style colors, streaming tokenizer
 - **shadcn registry** — copy-paste component for shadcn projects
-- **Table styling** — pipe table visual rendering with source intact
+- **Richer table cells** — inline links, emphasis, and nested syntax inside source-aligned tables
 - **Block widgets** — optional Mermaid / math / image previews that append below source
 
 SSR fallback, multi-framework support, and server-rendered docs are also deferred.
@@ -277,8 +277,6 @@ export function App() {
         />
       </section>
 
-      {/* ── docs ───────────────────────────────────────────────────── */}
-
       <section className="compact-section" id="docs" aria-label="Docs">
         <Sourcedown
           className="site-markdown site-markdown--docs"
@@ -292,8 +290,6 @@ export function App() {
           markdown={apiMarkdown}
         />
       </section>
-
-      {/* ── roadmap ────────────────────────────────────────────────── */}
 
       <section className="compact-section" id="roadmap" aria-label="Roadmap">
         <Sourcedown

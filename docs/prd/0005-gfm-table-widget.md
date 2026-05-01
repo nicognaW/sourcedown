@@ -1,16 +1,22 @@
 # sourcedown GFM table widget PRD
 
+Status: superseded.
+
+This PRD was implemented as an experiment and then rejected after validation: `Decoration.replace` + a rendered table widget aligned columns, but browser copy returned the widget text instead of the raw markdown table source. That violated sourcedown's source-as-is invariant.
+
+The accepted direction is the source-preserving table layout in `markdownDecorations.ts`: keep the original markdown text in the CodeMirror document, add line/mark decorations for table cells, and preserve raw markdown selection/copy.
+
 ## Problem Statement
 
 PRD 0004 implemented GFM table support with `Decoration.mark`. This correctly preserves source-as-is but produces no column alignment — each row is a plain text line. NK's feedback: "看着像没渲染" (looks unrendered). Column-aligned table rendering is the requirement.
 
 ## Solution
 
-Replace the `Decoration.mark` approach for `Table` nodes with `Decoration.replace` + a `TableWidget`. The widget renders a proper HTML `<table>` element with `<th>` and `<td>` cells, letting the browser's table layout engine handle column alignment.
+Rejected experiment: replace the `Decoration.mark` approach for `Table` nodes with `Decoration.replace` + a `TableWidget`. The widget renders a proper HTML `<table>` element with `<th>` and `<td>` cells, letting the browser's table layout engine handle column alignment.
 
-Source-as-is copy invariant is preserved: `Decoration.replace` replaces only the visual rendering. The underlying CM6 document string is unchanged, so selecting across the table and copying returns the raw markdown (`| A | B |\n|---|---|\n| 1 | 2 |`).
+Source-as-is copy invariant was not preserved in real browser copy. The underlying CM6 document string stayed unchanged, but selected widget DOM copied rendered cell text rather than the raw markdown (`| A | B |\n|---|---|\n| 1 | 2 |`).
 
-Trade-off accepted per NK/KN decision: individual `|` pipe characters are no longer cursor-selectable inside the widget. Full-range copy still returns raw markdown.
+Trade-off rejected: individual `|` pipe characters were no longer cursor-selectable inside the widget, and full-range copy did not reliably return raw markdown.
 
 ## Implementation Decisions
 

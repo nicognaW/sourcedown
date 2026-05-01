@@ -264,21 +264,43 @@ function tableCellDecoration(cell: TableCellRange, width: number): Decoration {
   if (cell.kind === "header") classes.push("sd-table-header-cell");
   if (cell.kind === "delimiter") classes.push("sd-table-delimiter-cell");
 
-  return Decoration.mark({
+  const cacheKey = `${classes.join(" ")}:${width}`;
+  const cached = tableCellDecorationCache.get(cacheKey);
+  if (cached) return cached;
+
+  const decoration = Decoration.mark({
     class: classes.join(" "),
     attributes: {
       style: `display: inline-block; width: ${width}ch; min-width: ${width}ch; white-space: pre;`,
     },
   });
+  tableCellDecorationCache.set(cacheKey, decoration);
+  return decoration;
+}
+
+const tableCellDecorationCache = new Map<string, Decoration>();
+const emptyCellPipeDecorationCache = new Map<number, Decoration>();
+const lineDecorationCache = new Map<string, Decoration>();
+
+function lineDecoration(className: string): Decoration {
+  const cached = lineDecorationCache.get(className);
+  if (cached) return cached;
+  const decoration = Decoration.line({ class: className });
+  lineDecorationCache.set(className, decoration);
+  return decoration;
 }
 
 function emptyCellPipeDecoration(width: number): Decoration {
-  return Decoration.mark({
+  const cached = emptyCellPipeDecorationCache.get(width);
+  if (cached) return cached;
+  const decoration = Decoration.mark({
     class: "sd-table-empty-cell-pipe",
     attributes: {
       style: `margin-left: ${width}ch;`,
     },
   });
+  emptyCellPipeDecorationCache.set(width, decoration);
+  return decoration;
 }
 
 function buildDecorations(state: EditorState): DecorationSet {
@@ -293,7 +315,7 @@ function buildDecorations(state: EditorState): DecorationSet {
           marks.push({
             from: lineStart,
             to: lineStart,
-            dec: Decoration.line({ class: "sd-table-line" }),
+            dec: lineDecoration("sd-table-line"),
           });
         }
         for (const cell of layout.cells) {
@@ -329,7 +351,7 @@ function buildDecorations(state: EditorState): DecorationSet {
           const classes = ["sd-code-line"];
           if (lineNum === startLine.number) classes.push("sd-code-line-first");
           if (lineNum === endLine.number) classes.push("sd-code-line-last");
-          marks.push({ from: line.from, to: line.from, dec: Decoration.line({ class: classes.join(" ") }) });
+          marks.push({ from: line.from, to: line.from, dec: lineDecoration(classes.join(" ")) });
         }
         // fall through to add sd-code-block mark for font/size
       }
