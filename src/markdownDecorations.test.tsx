@@ -254,6 +254,26 @@ describe("markdown semantic decorations", () => {
     });
   });
 
+  describe("code block background", () => {
+    it("codeBlockBg default is subtle light oklch gray", () => {
+      expect(markdownStyleDefaults.codeBlockBg).toBe("oklch(0.95 0 0)");
+    });
+
+    it("codeBlockBgDark default is dark oklch gray", () => {
+      expect(markdownStyleDefaults.codeBlockBgDark).toBe("oklch(0.22 0 0)");
+    });
+
+    it("fenced code block renders with sd-code-block class", async () => {
+      const { container } = render(
+        <Sourcedown markdown={"```ts\nconst x = 1;\n```"} />
+      );
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-code-block")).not.toBeNull();
+      });
+    });
+  });
+
   it("does not crash on incomplete streaming markdown", async () => {
     const incompletes = [
       "**bold",
