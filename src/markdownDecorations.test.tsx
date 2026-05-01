@@ -317,6 +317,76 @@ describe("markdown semantic decorations", () => {
       expect(lineTexts(container)).toContain("| a \\| b | c |");
     });
 
+    it("does not split pipe characters inside inline code cells", async () => {
+      const codePipeTable = [
+        "| Pattern | Result |",
+        "|---|---|",
+        "| `a | b` | ok |",
+      ].join("\n");
+      const { container } = render(<Sourcedown markdown={codePipeTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-table-cell")).not.toBeNull();
+      });
+
+      const cells = Array.from(container.querySelectorAll(".sd-table-cell")).map(
+        (el) => (el.textContent ?? "").trim()
+      );
+      expect(cells).toContain("`a | b`");
+      expect(cells).toContain("ok");
+      expect(cells).not.toContain("b`");
+      expect(lineTexts(container)).toContain("| `a | b` | ok |");
+    });
+
+    it("accounts for CJK display width in source table cells", async () => {
+      const cjkTable = [
+        "|A|Value|",
+        "|---|---|",
+        "|说明|x|",
+      ].join("\n");
+      const { container } = render(<Sourcedown markdown={cjkTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-table-cell")).not.toBeNull();
+      });
+
+      const nameCell = Array.from(
+        container.querySelectorAll<HTMLElement>(".sd-table-cell")
+      ).find((el) => (el.textContent ?? "").trim() === "说明");
+
+      expect(nameCell?.style.width).toMatch(/4ch$/);
+    });
+
+    it("keeps fully empty table cells and single-column tables stable", async () => {
+      const edgeTable = [
+        "| Only |",
+        "|---|",
+        "||",
+      ].join("\n");
+      const { container } = render(<Sourcedown markdown={edgeTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-table-empty-cell-pipe")).not.toBeNull();
+      });
+
+      expect(lineTexts(container)).toEqual(["| Only |", "|---|", "||"]);
+      expect(container.querySelector(".sd-table-delimiter-cell")?.textContent).toBe(
+        "---"
+      );
+    });
+
+    it("supports header and separator only tables", async () => {
+      const headerOnlyTable = ["| A | B |", "|---|---|"].join("\n");
+      const { container } = render(<Sourcedown markdown={headerOnlyTable} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(".sd-table-header-cell")).not.toBeNull();
+      });
+
+      expect(lineTexts(container)).toEqual(["| A | B |", "|---|---|"]);
+      expect(container.querySelectorAll(".sd-table-delimiter-cell")).toHaveLength(2);
+    });
+
     it("does not crash on incomplete streaming table", async () => {
       const { container, unmount } = render(
         <Sourcedown markdown="| A |" />
