@@ -67,6 +67,27 @@ describe("sourcedown site", () => {
     expect(container.querySelector("#docs pre")).toBeNull();
   });
 
+  it("renders feature, api, and roadmap content as sourcedown markdown", () => {
+    const { container } = render(<App />);
+
+    const features = screen.getByRole("region", { name: "Features" });
+    expect(sourceText(features)).toContain("# Features");
+    expect(sourceText(features)).toContain("- **Source-as-Is**");
+    expect(container.querySelector("#features article")).toBeNull();
+
+    const api = screen.getByRole("region", { name: "API" });
+    expect(sourceText(api)).toContain("# API");
+    expect(sourceText(api)).toContain("| Prop | Type | Default | Description |");
+    expect(sourceText(api)).toContain("| `markdown` | `string` |");
+    expect(sourceText(api)).toContain("| Headings | `# H1` through `###### H6` |");
+    expect(container.querySelector("#api table")).toBeNull();
+
+    const roadmap = screen.getByRole("region", { name: "Roadmap" });
+    expect(sourceText(roadmap)).toContain("# Roadmap");
+    expect(sourceText(roadmap)).toContain("- **Editable prompt input**");
+    expect(container.querySelector("#roadmap ul")).toBeNull();
+  });
+
   it("autoplays streamed markdown in the live demo", async () => {
     vi.useFakeTimers();
     render(<App />);
