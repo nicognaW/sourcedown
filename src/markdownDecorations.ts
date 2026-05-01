@@ -236,6 +236,29 @@ function parseTableLayout(tableNode: SyntaxNodeRef, doc: Text): TableLayout {
   return { cells, emptyCellPipes, widths, lineStarts };
 }
 
+function collectInlineCodeRanges(
+  tableNode: SyntaxNodeRef
+): Array<{ from: number; to: number }> {
+  const ranges: Array<{ from: number; to: number }> = [];
+  const cursor = tableNode.node.cursor();
+  if (!cursor.firstChild()) return ranges;
+
+  do {
+    if (cursor.name === "InlineCode") {
+      ranges.push({ from: cursor.from, to: cursor.to });
+    }
+    if (cursor.firstChild()) continue;
+    while (!cursor.nextSibling()) {
+      if (!cursor.parent()) return ranges;
+      if (cursor.from === tableNode.from && cursor.to === tableNode.to) {
+        return ranges;
+      }
+    }
+  } while (true);
+
+  return ranges;
+}
+
 function tableCellDecoration(cell: TableCellRange, width: number): Decoration {
   const classes = ["sd-table-cell"];
   if (cell.kind === "header") classes.push("sd-table-header-cell");
@@ -278,6 +301,13 @@ function buildDecorations(state: EditorState): DecorationSet {
             from: cell.from,
             to: cell.to,
             dec: tableCellDecoration(cell, layout.widths[cell.column] ?? 3),
+          });
+        }
+        for (const inlineCode of collectInlineCodeRanges(node)) {
+          marks.push({
+            from: inlineCode.from,
+            to: inlineCode.to,
+            dec: decs.InlineCode,
           });
         }
         for (const pipe of layout.emptyCellPipes) {
